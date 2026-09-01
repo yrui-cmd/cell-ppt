@@ -58,8 +58,8 @@ def main() -> int:
         run(sys.executable, ROOT / "install.py", "--destination", install_root)
         if not (install_root / "cell-ppt" / "SKILL.md").is_file():
             raise AssertionError("Cross-platform installer failed")
-        if not (install_root / "cell-ppt-fidelity" / "SKILL.md").is_file():
-            raise AssertionError("Fidelity skill installer failed")
+        if not (install_root / "nature-ppt" / "SKILL.md").is_file():
+            raise AssertionError("Nature PPT skill installer failed")
 
         gate = run(
             sys.executable,
@@ -72,7 +72,7 @@ def main() -> int:
         if gate.returncode == 0 or "CREDIT_CONFIRM_REQUIRED" not in (gate.stdout + gate.stderr):
             raise AssertionError("Pre-upload credit confirmation gate failed")
 
-    print("CROSS_PLATFORM_OK|core=shared|ooxml=editable|raster=absent|existing=preserved|fidelity=installed|credit_gate=preupload")
+    print("CROSS_PLATFORM_OK|core=shared|ooxml=editable|raster=absent|existing=preserved|nature-ppt=installed|credit_gate=preupload")
     return 0
 
 

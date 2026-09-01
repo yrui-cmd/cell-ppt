@@ -24,14 +24,14 @@ $required = @(
     'plugins\cell-ppt\skills\cell-ppt\scripts\configure_runtime.py',
     'plugins\cell-ppt\skills\cell-ppt\scripts\xiaomiao.ps1',
     'plugins\cell-ppt\skills\cell-ppt\scripts\xiaomiao.py',
-    'plugins\cell-ppt\skills\cell-ppt-fidelity\SKILL.md',
-    'plugins\cell-ppt\skills\cell-ppt-fidelity\agents\openai.yaml',
-    'plugins\cell-ppt\skills\cell-ppt-fidelity\references\fidelity-profile.json',
-    'plugins\cell-ppt\skills\cell-ppt-fidelity\references\accuracy-and-limits.md',
-    'plugins\cell-ppt\skills\cell-ppt-fidelity\scripts\bootstrap_vtracer.py',
-    'plugins\cell-ppt\skills\cell-ppt-fidelity\scripts\normalize_svg.py',
-    'plugins\cell-ppt\skills\cell-ppt-fidelity\scripts\vectorize.py',
-    'tests\test_fidelity_skill.py'
+    'plugins\cell-ppt\skills\nature-ppt\SKILL.md',
+    'plugins\cell-ppt\skills\nature-ppt\agents\openai.yaml',
+    'plugins\cell-ppt\skills\nature-ppt\references\fidelity-profile.json',
+    'plugins\cell-ppt\skills\nature-ppt\references\accuracy-and-limits.md',
+    'plugins\cell-ppt\skills\nature-ppt\scripts\bootstrap_vtracer.py',
+    'plugins\cell-ppt\skills\nature-ppt\scripts\normalize_svg.py',
+    'plugins\cell-ppt\skills\nature-ppt\scripts\vectorize.py',
+    'tests\test_nature_ppt.py'
 )
 foreach ($relative in $required) {
     if (-not (Test-Path -LiteralPath (Join-Path $repoRoot $relative) -PathType Leaf)) { throw "Required package file is missing: $relative" }
@@ -41,7 +41,7 @@ foreach ($forbidden in @('FROZEN-MANIFEST.json', 'update-frozen-manifest.ps1')) 
 }
 
 $plugin = Get-Content -LiteralPath (Join-Path $pluginRoot '.codex-plugin\plugin.json') -Raw -Encoding UTF8 | ConvertFrom-Json
-if ($plugin.name -ne 'cell-ppt' -or $plugin.version -ne '0.3.0' -or $plugin.skills -ne './skills/' -or $plugin.license -ne 'MIT') { throw 'Plugin identity is invalid.' }
+if ($plugin.name -ne 'cell-ppt' -or $plugin.version -ne '0.3.1' -or $plugin.skills -ne './skills/' -or $plugin.license -ne 'MIT') { throw 'Plugin identity is invalid.' }
 if ($plugin.interface.displayName -ne 'Cell_ppt' -or $plugin.author.name -ne 'yrui-cmd') { throw 'Plugin display identity is invalid.' }
 if (Test-Path -LiteralPath (Join-Path $repoRoot '.agents\plugins\marketplace.json')) { throw 'Marketplace metadata must not be included.' }
 
@@ -81,8 +81,8 @@ try {
     & (Join-Path $repoRoot 'install.ps1') -Destination $installRoot
     $installed = Join-Path $installRoot 'cell-ppt\SKILL.md'
     if (-not (Test-Path -LiteralPath $installed -PathType Leaf)) { throw 'Install smoke test failed.' }
-    $installedFidelity = Join-Path $installRoot 'cell-ppt-fidelity\SKILL.md'
-    if (-not (Test-Path -LiteralPath $installedFidelity -PathType Leaf)) { throw 'Fidelity Skill install smoke test failed.' }
+    $installedNaturePpt = Join-Path $installRoot 'nature-ppt\SKILL.md'
+    if (-not (Test-Path -LiteralPath $installedNaturePpt -PathType Leaf)) { throw 'Nature PPT Skill install smoke test failed.' }
     if ((Get-Item -LiteralPath (Split-Path -Parent $installed)).LinkType) { throw 'Public installer created a link instead of a copy.' }
     $profilePath = Join-Path $installRoot 'cell-ppt\runtime-profile.json'
     if (-not (Test-Path -LiteralPath $profilePath -PathType Leaf)) { throw 'Automatic runtime profile was not created.' }
@@ -118,4 +118,4 @@ finally {
     }
 }
 
-Write-Output 'PACKAGE_OK|skills=cell-ppt,cell-ppt-fidelity|version=0.3.0|platforms=windows,macos,linux-vectorizer|freeze=removed|secret_scan=clean'
+Write-Output 'PACKAGE_OK|skills=cell-ppt,nature-ppt|version=0.3.1|platforms=windows,macos,linux-vectorizer|freeze=removed|secret_scan=clean'

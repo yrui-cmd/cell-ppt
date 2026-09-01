@@ -39,9 +39,9 @@ def platform_key() -> str:
 
 def default_cache() -> Path:
     if sys.platform == "win32" and os.environ.get("LOCALAPPDATA"):
-        return Path(os.environ["LOCALAPPDATA"]) / "cell-ppt-fidelity"
+        return Path(os.environ["LOCALAPPDATA"]) / "nature-ppt"
     base = Path(os.environ.get("XDG_CACHE_HOME", Path.home() / ".cache"))
-    return base / "cell-ppt-fidelity"
+    return base / "nature-ppt"
 
 
 def sha256(path: Path) -> str:
@@ -92,12 +92,12 @@ def resolve_binary(cache_dir: Path, download: bool = True) -> tuple[Path, dict]:
         raise FileNotFoundError(f"Pinned VTracer is not cached: {executable}")
 
     target.parent.mkdir(parents=True, exist_ok=True)
-    with tempfile.TemporaryDirectory(prefix="cell-ppt-fidelity-", dir=target.parent) as raw_temp:
+    with tempfile.TemporaryDirectory(prefix="nature-ppt-", dir=target.parent) as raw_temp:
         temp = Path(raw_temp)
         archive = temp / asset["filename"]
         base_url = contract["engine"]["release_base_url"].rstrip("/")
         request = urllib.request.Request(
-            f"{base_url}/{asset['filename']}", headers={"User-Agent": "cell-ppt-fidelity"}
+            f"{base_url}/{asset['filename']}", headers={"User-Agent": "nature-ppt"}
         )
         with urllib.request.urlopen(request, timeout=120) as response, archive.open("wb") as output:
             shutil.copyfileobj(response, output)

@@ -10,10 +10,10 @@ Cell_ppt supports Windows and macOS with one shared core pipeline:
 
 ## New: no-API maximum-fidelity Skill
 
-Version 0.3.0 also installs `$cell-ppt-fidelity`. It uses the pinned and benchmarked VTracer 1.0.0-alpha.4 `photo + pixel` profile to convert PNG, JPEG, or WebP references into independent solid SVG paths locally. No API key is required. The official binary is downloaded lazily for the current platform and must pass its pinned SHA-256 check before execution.
+Version 0.3.1 also installs `$nature-ppt`. It uses the pinned and benchmarked VTracer 1.0.0-alpha.4 `photo + pixel` profile to convert PNG, JPEG, or WebP references into independent solid SVG paths locally. No API key is required. The official binary is downloaded lazily for the current platform and must pass its pinned SHA-256 check before execution.
 
 ```text
-Use $cell-ppt-fidelity to trace my uploaded image into a maximum-fidelity editable SVG, then hand it to $cell-ppt if I need native PowerPoint objects.
+Use $nature-ppt to trace my uploaded image into a maximum-fidelity editable SVG, then hand it to $cell-ppt if I need native PowerPoint objects.
 ```
 
 This mode prioritizes visual fidelity and may create tens of thousands of paths. It does not invent detail absent from the source.
@@ -35,16 +35,16 @@ The user may provide the API key directly in chat. Codex must never repeat or di
 ## Windows install
 
 ```powershell
-git clone https://github.com/yrui-cmd/cell-ppt.git
-Set-Location .\cell-ppt
+git clone https://github.com/Gerry2024-hub/nature-ppt.git
+Set-Location .\nature-ppt
 powershell -ExecutionPolicy Bypass -File .\setup.ps1
 ```
 
 ## macOS install
 
 ```bash
-git clone https://github.com/yrui-cmd/cell-ppt.git
-cd cell-ppt
+git clone https://github.com/Gerry2024-hub/nature-ppt.git
+cd nature-ppt
 bash ./setup.sh
 ```
 
@@ -54,5 +54,5 @@ Restart Codex after installation. For an existing macOS deck, save it first and 
 
 ```bash
 python3 ./tests/test_cross_platform.py
-python3 ./tests/test_fidelity_skill.py
+python3 ./tests/test_nature_ppt.py
 ```

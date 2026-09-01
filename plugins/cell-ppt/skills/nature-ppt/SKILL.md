@@ -1,9 +1,9 @@
 ---
-name: cell-ppt-fidelity
+name: nature-ppt
 description: Convert PNG, JPEG, or WebP references into maximum-fidelity, locally traced, editable solid-path SVGs for Cell_ppt when exact visual matching matters more than path count or editing speed. Use for no-API raster tracing, not semantic redraw or invented detail.
 ---
 
-# Cell_ppt Fidelity
+# Nature PPT
 
 Use this Skill when the user prioritizes faithful tracing over path economy. It runs VTracer locally, does not require an API key, and produces a Cell_ppt-compatible SVG containing independent solid paths with stable IDs.
 

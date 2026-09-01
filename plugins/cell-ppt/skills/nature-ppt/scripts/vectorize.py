@@ -77,7 +77,7 @@ def main() -> int:
     profile = contract["profile"]
     output.parent.mkdir(parents=True, exist_ok=True)
 
-    with tempfile.TemporaryDirectory(prefix="cell-ppt-fidelity-", dir=output.parent) as raw_temp:
+    with tempfile.TemporaryDirectory(prefix="nature-ppt-", dir=output.parent) as raw_temp:
         raw_svg = Path(raw_temp) / "raw.svg"
         command = [str(executable), str(source), str(raw_svg), *profile["arguments"]]
         subprocess.run(command, check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)

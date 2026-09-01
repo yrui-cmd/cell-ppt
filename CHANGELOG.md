@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.3.1 - 2026-09-01
+
+- Rename `$cell-ppt-fidelity` to the shorter `$nature-ppt` name without changing its tested tracing engine or maximum-fidelity profile.
+- Update installation, packaging, documentation, CI, and local cache naming for the new Skill identity.
+
 ## 0.3.0 - 2026-09-01
 
 - Add the independent `$cell-ppt-fidelity` Skill for local, no-API, maximum-fidelity raster-to-SVG tracing.

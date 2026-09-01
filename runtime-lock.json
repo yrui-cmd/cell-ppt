@@ -17,7 +17,7 @@
     "requiresDesktopApp": true,
     "requiresBuiltInImage2": true,
     "skillId": "cell-ppt",
-    "includedSkillIds": ["cell-ppt", "cell-ppt-fidelity"]
+    "includedSkillIds": ["cell-ppt", "nature-ppt"]
   },
   "runtimeContracts": {
     "geometryCacheSchema": 3,

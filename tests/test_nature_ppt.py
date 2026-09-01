@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Deterministic tests for the Cell_ppt Fidelity skill."""
+"""Deterministic tests for the Nature PPT skill."""
 
 from __future__ import annotations
 
@@ -13,7 +13,7 @@ from pathlib import Path
 
 
 ROOT = Path(__file__).resolve().parents[1]
-SKILL = ROOT / "plugins" / "cell-ppt" / "skills" / "cell-ppt-fidelity"
+SKILL = ROOT / "plugins" / "cell-ppt" / "skills" / "nature-ppt"
 SCRIPTS = SKILL / "scripts"
 
 
@@ -37,7 +37,7 @@ def main() -> int:
     )
 
     normalizer = load_module("normalize_svg", SCRIPTS / "normalize_svg.py")
-    with tempfile.TemporaryDirectory(prefix="cell-ppt-fidelity-test-") as raw:
+    with tempfile.TemporaryDirectory(prefix="nature-ppt-test-") as raw:
         temp = Path(raw)
         source = temp / "raw.svg"
         output = temp / "normalized.svg"
@@ -60,7 +60,7 @@ def main() -> int:
     )
     assert json.loads(target.stdout)["sha256"]
     subprocess.run([sys.executable, str(SCRIPTS / "vectorize.py"), "--help"], check=True, capture_output=True)
-    print("FIDELITY_SKILL_OK|profile=maximum-fidelity|normalization=true|download_target=true")
+    print("NATURE_PPT_OK|profile=maximum-fidelity|normalization=true|download_target=true")
     return 0
 
 

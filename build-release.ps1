@@ -23,14 +23,14 @@ if (-not $SkipTests) {
         $pythonPrefix = @('-X', 'utf8')
     }
     if (-not $pythonCommand) { throw 'Python 3.11-3.14 was not found.' }
-    & $pythonCommand.Source @pythonPrefix (Join-Path $repoRoot 'tests\test_fidelity_skill.py')
-    if ($LASTEXITCODE -ne 0) { throw 'Cell_ppt Fidelity tests failed.' }
+    & $pythonCommand.Source @pythonPrefix (Join-Path $repoRoot 'tests\test_nature_ppt.py')
+    if ($LASTEXITCODE -ne 0) { throw 'Nature PPT tests failed.' }
 }
 
 $distRoot = Join-Path $repoRoot 'dist'
 $tempRoot = Join-Path $repoRoot '.release-tmp'
-$stageRoot = Join-Path $tempRoot "cell-ppt-v$Version"
-$zipPath = Join-Path $distRoot "cell-ppt-v$Version.zip"
+$stageRoot = Join-Path $tempRoot "nature-ppt-v$Version"
+$zipPath = Join-Path $distRoot "nature-ppt-v$Version.zip"
 $hashPath = "$zipPath.sha256"
 if (Test-Path -LiteralPath $tempRoot) { Remove-Item -LiteralPath $tempRoot -Recurse -Force }
 New-Item -ItemType Directory -Force -Path $stageRoot, $distRoot | Out-Null
@@ -69,8 +69,8 @@ foreach ($required in @(
     'README.md',
     'install.py',
     'plugins\cell-ppt\skills\cell-ppt\SKILL.md',
-    'plugins\cell-ppt\skills\cell-ppt-fidelity\SKILL.md',
-    'plugins\cell-ppt\skills\cell-ppt-fidelity\scripts\vectorize.py'
+    'plugins\cell-ppt\skills\nature-ppt\SKILL.md',
+    'plugins\cell-ppt\skills\nature-ppt\scripts\vectorize.py'
 )) {
     if (-not (Test-Path -LiteralPath (Join-Path $stageRoot $required) -PathType Leaf)) {
         throw "Release stage is incomplete: $required"
@@ -83,7 +83,7 @@ Add-Type -AssemblyName System.IO.Compression.FileSystem
 $archive = [IO.Compression.ZipFile]::OpenRead($zipPath)
 try {
     $entryNames = @($archive.Entries | ForEach-Object { $_.FullName.Replace('\', '/') })
-    if ($entryNames.Count -lt 30 -or -not ($entryNames -match 'cell-ppt-fidelity/scripts/vectorize.py$')) {
+    if ($entryNames.Count -lt 30 -or -not ($entryNames -match 'nature-ppt/scripts/vectorize.py$')) {
         throw 'Release archive validation failed: required Skill files are missing.'
     }
 }

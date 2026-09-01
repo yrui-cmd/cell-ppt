@@ -18,7 +18,7 @@ def main() -> int:
 
     project = Path(__file__).resolve().parent
     source_root = project / "plugins" / "cell-ppt" / "skills"
-    skill_names = ("cell-ppt", "cell-ppt-fidelity")
+    skill_names = ("cell-ppt", "nature-ppt")
     target_root = args.destination.expanduser().resolve()
     for skill_name in skill_names:
         source = source_root / skill_name
