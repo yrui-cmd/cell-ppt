@@ -6,6 +6,7 @@
 .dry-run-out/
 .release-tmp/
 dist/
+work/
 Cell_ppt-output/
 *.pptx
 *.ppt

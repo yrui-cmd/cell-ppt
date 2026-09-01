@@ -1,6 +1,14 @@
 # Changelog
 
-## 0.2.0 - Unreleased
+## 0.3.0 - 2026-09-01
+
+- Add the independent `$cell-ppt-fidelity` Skill for local, no-API, maximum-fidelity raster-to-SVG tracing.
+- Pin VTracer 1.0.0-alpha.4 and verify official release assets with per-platform SHA-256 hashes before first use.
+- Select the benchmarked `photo + pixel` profile to avoid spline overshoot and preserve raster boundaries as editable solid paths.
+- Normalize viewBox and stable path IDs for strict Cell_ppt compatibility without bundling binaries or user data.
+- Install and test both Skills while preserving the existing Cell_ppt API, credential, and PowerPoint workflows.
+
+## 0.2.0 - 2026-08-31
 
 - Use one reconstruction, text, SVG parsing, culling, cache, batching, and native-object contract on Windows and macOS.
 - Keep live PowerPoint COM drawing on Windows and add native editable OOXML output for saved PPTX files on macOS.

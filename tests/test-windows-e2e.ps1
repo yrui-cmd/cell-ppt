@@ -11,18 +11,26 @@ $manifest = Join-Path $PSScriptRoot 'fixtures\text-manifest.json'
 $tempBase = Join-Path $repoRoot '.test-tmp'
 $tempRoot = Join-Path $tempBase ([Guid]::NewGuid().ToString('N'))
 New-Item -ItemType Directory -Force -Path $tempRoot | Out-Null
+$pythonCommand = Get-Command py -ErrorAction SilentlyContinue
+$pythonPrefix = @('-3', '-X', 'utf8')
+if (-not $pythonCommand) {
+    $pythonCommand = Get-Command python -ErrorAction SilentlyContinue
+    $pythonPrefix = @('-X', 'utf8')
+}
+if (-not $pythonCommand) { throw 'Python 3.11-3.14 was not found.' }
+$pythonExe = $pythonCommand.Source
 
 try {
     $master = Join-Path $tempRoot 'master.svg'
-    py -3 -X utf8 (Join-Path $skillRoot 'scripts\merge_live_text.py') --input-svg $fixture --text-manifest $manifest --output-svg $master | Out-Null
+    & $pythonExe @pythonPrefix (Join-Path $skillRoot 'scripts\merge_live_text.py') --input-svg $fixture --text-manifest $manifest --output-svg $master | Out-Null
     if ($LASTEXITCODE -ne 0) { throw 'Live text merge failed.' }
-    py -3 -X utf8 (Join-Path $skillRoot 'scripts\validate_vector_svg.py') --svg $master | Out-Null
+    & $pythonExe @pythonPrefix (Join-Path $skillRoot 'scripts\validate_vector_svg.py') --svg $master | Out-Null
     if ($LASTEXITCODE -ne 0) { throw 'Master SVG validation failed.' }
 
     $cacheRoot = Join-Path $tempRoot 'cache'
-    py -3 -X utf8 (Join-Path $skillRoot 'scripts\prepare_geometry_cache.py') --input $master --output-dir $cacheRoot --job-id windows-e2e | Out-Null
+    & $pythonExe @pythonPrefix (Join-Path $skillRoot 'scripts\prepare_geometry_cache.py') --input $master --output-dir $cacheRoot --job-id windows-e2e | Out-Null
     if ($LASTEXITCODE -ne 0) { throw 'Geometry cache creation failed.' }
-    py -3 -X utf8 (Join-Path $skillRoot 'scripts\cull_hidden_geometry.py') --cache (Join-Path $cacheRoot 'geometry-cache.json') --state (Join-Path $cacheRoot 'drawing-state.json') | Out-Null
+    & $pythonExe @pythonPrefix (Join-Path $skillRoot 'scripts\cull_hidden_geometry.py') --cache (Join-Path $cacheRoot 'geometry-cache.json') --state (Join-Path $cacheRoot 'drawing-state.json') | Out-Null
     if ($LASTEXITCODE -ne 0) { throw 'Visibility culling failed.' }
 
     $cache = Get-Content -LiteralPath (Join-Path $cacheRoot 'geometry-cache.json') -Raw -Encoding UTF8 | ConvertFrom-Json

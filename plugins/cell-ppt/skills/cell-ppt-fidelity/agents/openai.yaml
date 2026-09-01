@@ -1,0 +1,4 @@
+interface:
+  display_name: "Cell_ppt Fidelity"
+  short_description: "Pixel-faithful raster-to-editable-vector tracing"
+  default_prompt: "Use $cell-ppt-fidelity to trace my image into a maximum-fidelity editable SVG for Cell_ppt."

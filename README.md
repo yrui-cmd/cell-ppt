@@ -10,6 +10,16 @@ Cell_ppt 支持 Windows 与 macOS，并保持同一套核心流程：
 - macOS 13+：支持可打开标准 `.pptx` 的 PowerPoint 2019、2021、2024 和 Microsoft 365 桌面版；使用原生 OOXML 写入同一几何缓存，路径和文字可编辑，但不伪装成实时逐路径动画。
 - WPS Presentation：实验性兼容。
 
+## 新增：无 API 极致还原 Skill
+
+0.3.0 同时安装 `$cell-ppt-fidelity`。它使用固定且经过实测的 VTracer 1.0.0-alpha.4 `photo + pixel` 配置，在本机把 PNG/JPEG/WebP 转成由独立纯色路径组成的 SVG，不需要 API Key。官方二进制文件在首次使用时按当前系统下载，并通过仓库内固定的 SHA-256 校验后才会执行。
+
+```text
+使用 $cell-ppt-fidelity，把我上传的图片按最高还原度转换成可编辑 SVG；需要 PowerPoint 时再交给 $cell-ppt。
+```
+
+该模式优先保证临摹准确度，可能生成数万条路径，因此文件更大、PowerPoint 绘制更慢。它不会虚构原图中不存在的细节。
+
 ## 已固定的规则
 
 - Python 3.11–3.14。
@@ -35,7 +45,7 @@ Cell_ppt 支持 Windows 与 macOS，并保持同一套核心流程：
 请安装 https://github.com/yrui-cmd/cell-ppt，并根据当前电脑自动匹配操作系统、Python、PowerPoint/WPS 与绘图后端；使用我在本条消息中提供的 API Key 完成安全配置，不要复述或显示密钥。安装、依赖、DPAPI/Keychain、认证验证和诊断全部由你完成，验证通过后使用 $cell-ppt 开始作图。
 ```
 
-允许在聊天中提供 API Key。Codex 必须只通过标准输入传给安装程序，不得复述，也不得写入命令行参数、环境变量、项目、日志或交付文件。安装程序会自动安装固定依赖、复制 Skill、生成 `runtime-profile.json`、选择可用后端、保存加密凭据并执行零额度认证验证。
+允许在聊天中提供 API Key。Codex 必须只通过标准输入传给安装程序，不得复述，也不得写入命令行参数、环境变量、项目、日志或交付文件。安装程序会自动安装固定依赖、复制 `$cell-ppt` 与 `$cell-ppt-fidelity`、生成 `runtime-profile.json`、选择可用后端、保存加密凭据并执行零额度认证验证。高保真 Skill 本身不使用 API Key。
 
 ## Windows 安装
 
@@ -108,6 +118,7 @@ python3 ./doctor.py --verify-api --json
 
 ```bash
 python3 ./tests/test_cross_platform.py
+python3 ./tests/test_fidelity_skill.py
 ```
 
 Windows PowerPoint 真机测试必须使用一次性测试文稿：
@@ -116,4 +127,4 @@ Windows PowerPoint 真机测试必须使用一次性测试文稿：
 .\tests\test-powerpoint-e2e.ps1 -ConfirmDisposablePresentation
 ```
 
-完整插件源码位于 `plugins/cell-ppt`。感谢小红书：木纹小路。
+完整插件源码位于 `plugins/cell-ppt`，其中包含两个可独立触发的 Skill。感谢小红书：木纹小路。

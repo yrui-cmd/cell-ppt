@@ -16,7 +16,8 @@
   "codex": {
     "requiresDesktopApp": true,
     "requiresBuiltInImage2": true,
-    "skillId": "cell-ppt"
+    "skillId": "cell-ppt",
+    "includedSkillIds": ["cell-ppt", "cell-ppt-fidelity"]
   },
   "runtimeContracts": {
     "geometryCacheSchema": 3,

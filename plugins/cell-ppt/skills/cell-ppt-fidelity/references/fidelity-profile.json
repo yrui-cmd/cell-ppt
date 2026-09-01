@@ -1,0 +1,56 @@
+{
+  "schema_version": "1.0",
+  "engine": {
+    "name": "VTracer",
+    "version": "1.0.0-alpha.4",
+    "repository": "https://github.com/visioncortex/vtracer",
+    "release_base_url": "https://github.com/visioncortex/vtracer/releases/download/1.0.0-alpha.4"
+  },
+  "assets": {
+    "windows-x86_64": {
+      "filename": "vtracer-x86_64-pc-windows-msvc.zip",
+      "sha256": "8eadb5529864265f003f791ad9cb128e1b9b8b8af8c21016f38b04706bcf3531",
+      "binary_sha256": "185c20424a5eed31f2ed0caf9d72b6cc7ae86480bab05199fd5cbde55d4b40b1"
+    },
+    "macos-x86_64": {
+      "filename": "vtracer-x86_64-apple-darwin.tar.gz",
+      "sha256": "22f06d100d2b0cbd7b5efc222b68bebf817865b34a0caa949fd2f4d608a76182",
+      "binary_sha256": "5c53f9db6fc396ad7ba4aa8d2259cb1e9a13416ee32e7398263a87e1d150a707"
+    },
+    "macos-aarch64": {
+      "filename": "vtracer-aarch64-apple-darwin.tar.gz",
+      "sha256": "71132b7781dc38b6a98917078b04e7353a3885916c5a224bc5e1154627b3d5f2",
+      "binary_sha256": "06deffea9a28cd76d951534df9c92385a131a80aed36d0803ee84f989117d6e6"
+    },
+    "linux-x86_64": {
+      "filename": "vtracer-x86_64-unknown-linux-musl.tar.gz",
+      "sha256": "2058f611b48ed49497f78883bde47435531e9e17e3a79428432d1528bdb12e2a",
+      "binary_sha256": "43ad969fdac4f9d36e31a2f5d8650781248ba8bb7438c3778b378d9a7eaaa52e"
+    },
+    "linux-aarch64": {
+      "filename": "vtracer-aarch64-unknown-linux-musl.tar.gz",
+      "sha256": "92bcd69792d4ba981df4e1aef8d7c7096cab4f6c56b0817c73164656664ec5a8",
+      "binary_sha256": "dcaaf4af9ef066aed1bddd14c38b50cdf4b7ae5a32d2c70e35924b744e3fe59b"
+    }
+  },
+  "profile": {
+    "name": "maximum-fidelity",
+    "arguments": [
+      "--preset", "photo",
+      "--mode", "pixel",
+      "--filter-speckle", "0",
+      "--color-precision", "8",
+      "--gradient-step", "1",
+      "--path-precision", "8",
+      "--optimize", "0"
+    ]
+  },
+  "reference_benchmark": {
+    "source_dimensions": [1013, 524],
+    "ssim": 0.9982763,
+    "psnr_db": 44.001786,
+    "mae": 0.912993,
+    "pixel_error_over_25_percent": 0.0,
+    "path_count": 87432
+  }
+}

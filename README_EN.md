@@ -8,6 +8,16 @@ Cell_ppt supports Windows and macOS with one shared core pipeline:
 - macOS supports desktop PowerPoint 2019, 2021, 2024, and Microsoft 365 versions that open standard `.pptx` files. It writes the same geometry cache as native editable DrawingML custom geometry into a saved PPTX; file-backed output is not presented as fake live animation.
 - WPS Presentation remains experimental.
 
+## New: no-API maximum-fidelity Skill
+
+Version 0.3.0 also installs `$cell-ppt-fidelity`. It uses the pinned and benchmarked VTracer 1.0.0-alpha.4 `photo + pixel` profile to convert PNG, JPEG, or WebP references into independent solid SVG paths locally. No API key is required. The official binary is downloaded lazily for the current platform and must pass its pinned SHA-256 check before execution.
+
+```text
+Use $cell-ppt-fidelity to trace my uploaded image into a maximum-fidelity editable SVG, then hand it to $cell-ppt if I need native PowerPoint objects.
+```
+
+This mode prioritizes visual fidelity and may create tens of thousands of paths. It does not invent detail absent from the source.
+
 ## Fixed defaults
 
 - Python 3.11–3.14.
@@ -44,4 +54,5 @@ Restart Codex after installation. For an existing macOS deck, save it first and 
 
 ```bash
 python3 ./tests/test_cross_platform.py
+python3 ./tests/test_fidelity_skill.py
 ```
