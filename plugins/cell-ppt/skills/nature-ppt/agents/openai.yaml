@@ -1,4 +1,4 @@
 interface:
   display_name: "Nature PPT"
-  short_description: "Pixel-faithful raster-to-editable-vector tracing"
-  default_prompt: "Use $nature-ppt to trace my image into a maximum-fidelity editable SVG for Cell_ppt."
+  short_description: "Pixel-faithful tracing with sharp editable text"
+  default_prompt: "Use $nature-ppt to trace my image faithfully and restore its labels as sharp editable text."

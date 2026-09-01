@@ -28,9 +28,12 @@ $required = @(
     'plugins\cell-ppt\skills\nature-ppt\agents\openai.yaml',
     'plugins\cell-ppt\skills\nature-ppt\references\fidelity-profile.json',
     'plugins\cell-ppt\skills\nature-ppt\references\accuracy-and-limits.md',
+    'plugins\cell-ppt\skills\nature-ppt\references\live-text-workflow.md',
     'plugins\cell-ppt\skills\nature-ppt\scripts\bootstrap_vtracer.py',
     'plugins\cell-ppt\skills\nature-ppt\scripts\normalize_svg.py',
+    'plugins\cell-ppt\skills\nature-ppt\scripts\restore_live_text.py',
     'plugins\cell-ppt\skills\nature-ppt\scripts\vectorize.py',
+    'plugins\cell-ppt\skills\nature-ppt\scripts\vectorize_with_live_text.py',
     'tests\test_nature_ppt.py'
 )
 foreach ($relative in $required) {
@@ -41,7 +44,7 @@ foreach ($forbidden in @('FROZEN-MANIFEST.json', 'update-frozen-manifest.ps1')) 
 }
 
 $plugin = Get-Content -LiteralPath (Join-Path $pluginRoot '.codex-plugin\plugin.json') -Raw -Encoding UTF8 | ConvertFrom-Json
-if ($plugin.name -ne 'cell-ppt' -or $plugin.version -ne '0.3.1' -or $plugin.skills -ne './skills/' -or $plugin.license -ne 'MIT') { throw 'Plugin identity is invalid.' }
+if ($plugin.name -ne 'cell-ppt' -or $plugin.version -ne '0.4.0' -or $plugin.skills -ne './skills/' -or $plugin.license -ne 'MIT') { throw 'Plugin identity is invalid.' }
 if ($plugin.interface.displayName -ne 'Cell_ppt' -or $plugin.author.name -ne 'yrui-cmd') { throw 'Plugin display identity is invalid.' }
 if (Test-Path -LiteralPath (Join-Path $repoRoot '.agents\plugins\marketplace.json')) { throw 'Marketplace metadata must not be included.' }
 
@@ -118,4 +121,4 @@ finally {
     }
 }
 
-Write-Output 'PACKAGE_OK|skills=cell-ppt,nature-ppt|version=0.3.1|platforms=windows,macos,linux-vectorizer|freeze=removed|secret_scan=clean'
+Write-Output 'PACKAGE_OK|skills=cell-ppt,nature-ppt|version=0.4.0|platforms=windows,macos,linux-vectorizer|live_text=true|freeze=removed|secret_scan=clean'

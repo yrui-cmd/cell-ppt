@@ -1,6 +1,6 @@
 {
   "name": "cell-ppt",
-  "version": "0.3.1",
+  "version": "0.4.0",
   "description": "Create editable native PowerPoint figures, with optional no-API maximum-fidelity local tracing.",
   "author": {
     "name": "yrui-cmd",
@@ -14,7 +14,7 @@
   "interface": {
     "displayName": "Cell_ppt",
     "shortDescription": "Editable scientific figures for PowerPoint.",
-    "longDescription": "Cell_ppt uses one reconstruction pipeline on Windows and macOS. Nature PPT adds optional local, no-API, pixel-faithful raster tracing through a pinned and checksum-verified VTracer release.",
+    "longDescription": "Cell_ppt uses one reconstruction pipeline on Windows and macOS. Nature PPT adds local pixel-faithful tracing plus optional text-only cleanup and sharp editable text restoration.",
     "developerName": "yrui-cmd",
     "category": "Productivity",
     "capabilities": ["Interactive", "Write"],

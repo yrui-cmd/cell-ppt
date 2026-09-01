@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.4.0 - 2026-09-01
+
+- Add a text-aware Nature PPT workflow modeled on Cell_ppt: record text, remove text only, trace the cleaned image, and restore labels as live editable SVG text.
+- Add deterministic manifest validation, same-dimension source/cleanup checks, raster-node rejection, editable-text markers, and an end-to-end wrapper.
+- Keep the existing local no-API maximum-fidelity tracing mode unchanged for text-free references and path-only output.
+
 ## 0.3.1 - 2026-09-01
 
 - Rename `$cell-ppt-fidelity` to the shorter `$nature-ppt` name without changing its tested tracing engine or maximum-fidelity profile.

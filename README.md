@@ -12,10 +12,10 @@ Cell_ppt 支持 Windows 与 macOS，并保持同一套核心流程：
 
 ## 新增：无 API 极致还原 Skill
 
-0.3.1 同时安装 `$nature-ppt`。它使用固定且经过实测的 VTracer 1.0.0-alpha.4 `photo + pixel` 配置，在本机把 PNG/JPEG/WebP 转成由独立纯色路径组成的 SVG，不需要 API Key。官方二进制文件在首次使用时按当前系统下载，并通过仓库内固定的 SHA-256 校验后才会执行。
+0.4.0 同时安装 `$nature-ppt`。它使用固定且经过实测的 VTracer 1.0.0-alpha.4 `photo + pixel` 配置，在本机把 PNG/JPEG/WebP 转成由独立纯色路径组成的 SVG，不需要 API Key。包含文字时，可先建立文字清单并只清除文字，再描摹无文字底图，最后恢复为清晰、可编辑的 SVG 文字。官方二进制文件在首次使用时按当前系统下载，并通过仓库内固定的 SHA-256 校验后才会执行。
 
 ```text
-使用 $nature-ppt，把我上传的图片按最高还原度转换成可编辑 SVG；需要 PowerPoint 时再交给 $cell-ppt。
+使用 $nature-ppt，把我上传的图片按最高还原度转换成可编辑 SVG；先分离原图文字并恢复为清晰可编辑文字，需要 PowerPoint 时再交给 $cell-ppt。
 ```
 
 该模式优先保证临摹准确度，可能生成数万条路径，因此文件更大、PowerPoint 绘制更慢。它不会虚构原图中不存在的细节。

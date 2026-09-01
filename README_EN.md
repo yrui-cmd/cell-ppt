@@ -10,10 +10,10 @@ Cell_ppt supports Windows and macOS with one shared core pipeline:
 
 ## New: no-API maximum-fidelity Skill
 
-Version 0.3.1 also installs `$nature-ppt`. It uses the pinned and benchmarked VTracer 1.0.0-alpha.4 `photo + pixel` profile to convert PNG, JPEG, or WebP references into independent solid SVG paths locally. No API key is required. The official binary is downloaded lazily for the current platform and must pass its pinned SHA-256 check before execution.
+Version 0.4.0 also installs `$nature-ppt`. It uses the pinned and benchmarked VTracer 1.0.0-alpha.4 `photo + pixel` profile to convert PNG, JPEG, or WebP references into independent solid SVG paths locally. Its text-aware mode records labels, removes text only, traces the cleaned image, and restores sharp editable SVG text. The local tracing mode requires no API key. The official binary is downloaded lazily for the current platform and must pass its pinned SHA-256 check before execution.
 
 ```text
-Use $nature-ppt to trace my uploaded image into a maximum-fidelity editable SVG, then hand it to $cell-ppt if I need native PowerPoint objects.
+Use $nature-ppt to trace my uploaded image into a maximum-fidelity editable SVG, separating labels and restoring them as sharp editable text before handing it to $cell-ppt.
 ```
 
 This mode prioritizes visual fidelity and may create tens of thousands of paths. It does not invent detail absent from the source.

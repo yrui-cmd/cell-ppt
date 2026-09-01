@@ -70,7 +70,9 @@ foreach ($required in @(
     'install.py',
     'plugins\cell-ppt\skills\cell-ppt\SKILL.md',
     'plugins\cell-ppt\skills\nature-ppt\SKILL.md',
-    'plugins\cell-ppt\skills\nature-ppt\scripts\vectorize.py'
+    'plugins\cell-ppt\skills\nature-ppt\scripts\vectorize.py',
+    'plugins\cell-ppt\skills\nature-ppt\scripts\vectorize_with_live_text.py',
+    'plugins\cell-ppt\skills\nature-ppt\scripts\restore_live_text.py'
 )) {
     if (-not (Test-Path -LiteralPath (Join-Path $stageRoot $required) -PathType Leaf)) {
         throw "Release stage is incomplete: $required"
