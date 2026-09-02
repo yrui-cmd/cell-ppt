@@ -43,7 +43,7 @@ bash ./setup.sh
 
 ## 使用
 
-在 Codex 中发送：
+在 豆包、VScode、deepseek、Claudecode、Codex等中发送：
 
 ```text
 使用 $nature-ppt，把这张参考图重建为实际可编辑的 PowerPoint；先判断应该使用原生还是混合模式，并说明哪些部分可编辑。
