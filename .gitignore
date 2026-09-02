@@ -7,7 +7,7 @@
 .release-tmp/
 dist/
 work/
-Cell_ppt-output/
+Nature-PPT-output/
 *.pptx
 *.ppt
 *.ai

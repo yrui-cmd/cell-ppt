@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Deterministic tests for the shared Cell_ppt core and OOXML backend."""
+"""Verify native and hybrid PPTX output plus isolated installation."""
 
 from __future__ import annotations
 
@@ -10,27 +10,27 @@ import tempfile
 import zipfile
 from pathlib import Path
 
+from PIL import Image
 from pptx import Presentation
 from pptx.util import Inches
 
 
 ROOT = Path(__file__).resolve().parents[1]
-SCRIPTS = ROOT / "plugins" / "cell-ppt" / "skills" / "cell-ppt" / "scripts"
+SCRIPTS = ROOT / "plugins" / "nature-ppt" / "skills" / "nature-ppt" / "scripts"
 
 
-def run(*args: object, check: bool = True) -> subprocess.CompletedProcess[str]:
-    return subprocess.run([str(value) for value in args], text=True, capture_output=True, check=check)
+def run(*args: object) -> subprocess.CompletedProcess[str]:
+    return subprocess.run([str(value) for value in args], check=True, text=True, capture_output=True)
 
 
 def main() -> int:
-    with tempfile.TemporaryDirectory(prefix="cell-ppt-test-") as raw:
+    with tempfile.TemporaryDirectory(prefix="nature-ppt-cross-") as raw:
         temp = Path(raw)
         cache = temp / "cache"
-        run(sys.executable, SCRIPTS / "prepare_geometry_cache.py", "--input", ROOT / "tests" / "fixtures" / "editable.svg", "--output-dir", cache, "--job-id", "shibielujing1")
+        run(sys.executable, SCRIPTS / "prepare_geometry_cache.py", "--input", ROOT / "tests" / "fixtures" / "editable.svg", "--output-dir", cache, "--job-id", "natureppt1")
         run(sys.executable, SCRIPTS / "cull_hidden_geometry.py", "--cache", cache / "geometry-cache.json", "--state", cache / "drawing-state.json")
         payload = json.loads((cache / "geometry-cache.json").read_text(encoding="utf-8"))
-        if payload["schema_version"] != 3 or not any(atom["kind"] == "text" for atom in payload["atoms"]):
-            raise AssertionError("Shared geometry cache contract failed")
+        assert payload["schema_version"] == 3 and any(atom["kind"] == "text" for atom in payload["atoms"])
 
         source = temp / "source.pptx"
         prs = Presentation()
@@ -39,40 +39,36 @@ def main() -> int:
         sentinel.name = "PREEXISTING_SENTINEL"
         sentinel.text = "keep"
         prs.save(source)
-
-        output = temp / "output.pptx"
-        proc = run(sys.executable, SCRIPTS / "run_cell_ppt_ooxml.py", "--geometry-cache", cache / "geometry-cache.json", "--input-pptx", source, "--output-pptx", output, "--slide-index", 1)
-        result = json.loads(proc.stdout.strip().splitlines()[-1])
-        if not result["ok"] or result["native_object_count"] < 4:
-            raise AssertionError("OOXML native-object creation failed")
-        reopened = Presentation(output)
+        native = temp / "native.pptx"
+        result = json.loads(run(sys.executable, SCRIPTS / "render_pptx_ooxml.py", "--geometry-cache", cache / "geometry-cache.json", "--input-pptx", source, "--output-pptx", native, "--slide-index", 1).stdout)
+        assert result["native_object_count"] >= 4
+        reopened = Presentation(native)
         names = [shape.name for shape in reopened.slides[0].shapes]
-        editable_text = [shape.text for shape in reopened.slides[0].shapes if getattr(shape, "has_text_frame", False)]
-        if "PREEXISTING_SENTINEL" not in names or "Cell_ppt" not in editable_text:
-            raise AssertionError("Existing-object or editable-text preservation failed")
-        with zipfile.ZipFile(output) as package:
-            if any(name.startswith("ppt/media/") for name in package.namelist()):
-                raise AssertionError("Raster media was inserted into editable output")
+        texts = [shape.text for shape in reopened.slides[0].shapes if getattr(shape, "has_text_frame", False)]
+        assert "PREEXISTING_SENTINEL" in names and "Nature PPT" in texts
+        with zipfile.ZipFile(native) as package:
+            assert not any(name.startswith("ppt/media/") for name in package.namelist())
+
+        background = temp / "background.png"
+        Image.new("RGB", (320, 180), "#14324a").save(background)
+        hybrid = temp / "hybrid.pptx"
+        hybrid_report = json.loads(run(sys.executable, SCRIPTS / "build_hybrid_pptx.py", "--background-image", background, "--text-manifest", ROOT / "tests" / "fixtures" / "nature-text-manifest.json", "--output-pptx", hybrid).stdout)
+        assert hybrid_report["background_is_raster"] and hybrid_report["editable_text_count"] == 1
+        hybrid_opened = Presentation(hybrid)
+        assert any(shape.name == "NATURE_PPT_BACKGROUND" for shape in hybrid_opened.slides[-1].shapes)
+        with zipfile.ZipFile(hybrid) as package:
+            assert any(name.startswith("ppt/media/") for name in package.namelist())
 
         install_root = temp / "skills"
-        run(sys.executable, ROOT / "install.py", "--destination", install_root)
-        if not (install_root / "cell-ppt" / "SKILL.md").is_file():
-            raise AssertionError("Cross-platform installer failed")
-        if not (install_root / "nature-ppt" / "SKILL.md").is_file():
-            raise AssertionError("Nature PPT skill installer failed")
+        existing = install_root / "nature-ppt"
+        existing.mkdir(parents=True)
+        (existing / "remote-backend.json").write_text('{"url":"https://example.invalid"}', encoding="utf-8")
+        run(sys.executable, ROOT / "install.py", "--destination", install_root, "--force")
+        assert (existing / "SKILL.md").is_file()
+        assert json.loads((existing / "remote-backend.json").read_text(encoding="utf-8"))["url"].startswith("https://")
+        assert [path.name for path in install_root.iterdir()] == ["nature-ppt"]
 
-        gate = run(
-            sys.executable,
-            SCRIPTS / "vectorize_xiaomiao.py",
-            "--input-image", temp / "not-uploaded.png",
-            "--output-svg", temp / "never-created.svg",
-            "--estimated-credits", 2,
-            check=False,
-        )
-        if gate.returncode == 0 or "CREDIT_CONFIRM_REQUIRED" not in (gate.stdout + gate.stderr):
-            raise AssertionError("Pre-upload credit confirmation gate failed")
-
-    print("CROSS_PLATFORM_OK|core=shared|ooxml=editable|raster=absent|existing=preserved|nature-ppt=installed|credit_gate=preupload")
+    print("CROSS_PLATFORM_OK|native=true|hybrid=true|existing_preserved=true|isolated_install=true")
     return 0
 
 

@@ -1,0 +1,4 @@
+interface:
+  display_name: "Nature PPT"
+  short_description: "Reference images to practical editable PowerPoint"
+  default_prompt: "Use $nature-ppt to reconstruct my reference as a practical editable PowerPoint, preserving fidelity and reporting any raster layers."

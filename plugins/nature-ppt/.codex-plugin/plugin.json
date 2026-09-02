@@ -1,0 +1,28 @@
+{
+  "name": "nature-ppt",
+  "version": "0.5.0",
+  "description": "Reconstruct reference images as practical editable PowerPoint content with local or optional hosted vectorization.",
+  "author": {
+    "name": "Gerry2024-hub",
+    "url": "https://github.com/Gerry2024-hub"
+  },
+  "homepage": "https://github.com/Gerry2024-hub/nature-ppt",
+  "repository": "https://github.com/Gerry2024-hub/nature-ppt",
+  "license": "MIT",
+  "keywords": ["powerpoint", "scientific-figure", "vector", "pptx", "codex-skill", "vtracer"],
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "Nature PPT",
+    "shortDescription": "Reference images to practical editable PowerPoint.",
+    "longDescription": "Nature PPT preflights image complexity, uses local or optional hosted vectorization, restores live text, and renders native PowerPoint objects while switching gradient-heavy artwork to a transparent hybrid workflow.",
+    "developerName": "Gerry2024-hub",
+    "category": "Productivity",
+    "capabilities": ["Interactive", "Write"],
+    "websiteURL": "https://github.com/Gerry2024-hub/nature-ppt",
+    "defaultPrompt": [
+      "Reconstruct this reference as a practical editable PowerPoint.",
+      "Convert this scientific figure to native PowerPoint objects.",
+      "Preflight this image and choose native or hybrid reconstruction."
+    ]
+  }
+}
