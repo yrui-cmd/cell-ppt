@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Verify native and hybrid PPTX output plus isolated installation."""
+"""Verify native-only PPTX output plus isolated installation."""
 
 from __future__ import annotations
 
@@ -10,7 +10,6 @@ import tempfile
 import zipfile
 from pathlib import Path
 
-from PIL import Image
 from pptx import Presentation
 from pptx.util import Inches
 
@@ -49,16 +48,6 @@ def main() -> int:
         with zipfile.ZipFile(native) as package:
             assert not any(name.startswith("ppt/media/") for name in package.namelist())
 
-        background = temp / "background.png"
-        Image.new("RGB", (320, 180), "#14324a").save(background)
-        hybrid = temp / "hybrid.pptx"
-        hybrid_report = json.loads(run(sys.executable, SCRIPTS / "build_hybrid_pptx.py", "--background-image", background, "--text-manifest", ROOT / "tests" / "fixtures" / "nature-text-manifest.json", "--output-pptx", hybrid).stdout)
-        assert hybrid_report["background_is_raster"] and hybrid_report["editable_text_count"] == 1
-        hybrid_opened = Presentation(hybrid)
-        assert any(shape.name == "NATURE_PPT_BACKGROUND" for shape in hybrid_opened.slides[-1].shapes)
-        with zipfile.ZipFile(hybrid) as package:
-            assert any(name.startswith("ppt/media/") for name in package.namelist())
-
         install_root = temp / "skills"
         existing = install_root / "nature-ppt"
         existing.mkdir(parents=True)
@@ -68,7 +57,7 @@ def main() -> int:
         assert json.loads((existing / "remote-backend.json").read_text(encoding="utf-8"))["url"].startswith("https://")
         assert [path.name for path in install_root.iterdir()] == ["nature-ppt"]
 
-    print("CROSS_PLATFORM_OK|native=true|hybrid=true|existing_preserved=true|isolated_install=true")
+    print("CROSS_PLATFORM_OK|native_only=true|no_raster_media=true|existing_preserved=true|isolated_install=true")
     return 0
 
 

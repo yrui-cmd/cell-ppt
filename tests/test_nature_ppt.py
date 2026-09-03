@@ -50,6 +50,8 @@ def main() -> int:
     assert profile["engine"]["version"] == "1.0.0-alpha.4"
     assert profile["profile"]["arguments"][profile["profile"]["arguments"].index("--mode") + 1] == "pixel"
     preflight = load("preflight_image")
+    budgeted = load("vectorize_budgeted")
+    optimizer = load("optimize_svg_paths")
     normalizer = load("normalize_svg")
     restorer = load("restore_live_text")
     remote = load("remote_vectorize")
@@ -71,7 +73,23 @@ def main() -> int:
             for x in range(400):
                 pixels[x, y] = (x * 255 // 399, y * 255 // 299, (x + y) * 255 // 698)
         gradient_image.save(gradient)
-        assert preflight.analyze(gradient)["recommended_mode"] == "hybrid"
+        assert preflight.analyze(gradient)["recommended_mode"] == "light-native"
+        assert budgeted.PROFILES[0]["colors"] > budgeted.PROFILES[-1]["colors"]
+        assert budgeted.PROFILES[0]["simplify"] < budgeted.PROFILES[-1]["simplify"]
+        assert budgeted.arguments(budgeted.PROFILES[0])[budgeted.arguments(budgeted.PROFILES[0]).index("--hierarchical") + 1] == "cutout"
+
+        pack_input = temp / "pack-input.svg"
+        pack_output = temp / "pack-output.svg"
+        pack_input.write_text(
+            '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 30 10">'
+            '<path id="a" d="M0 0H5V5H0Z" fill="#f00"/>'
+            '<path id="b" d="M10 0H15V5H10Z" fill="#f00"/>'
+            '<path id="c" d="M20 0H25V5H20Z" fill="#00f"/>'
+            '</svg>',
+            encoding="utf-8",
+        )
+        packing = optimizer.optimize(pack_input, pack_output, cutout_mosaic=True)
+        assert packing["input_paths"] == 3 and packing["optimized_paths"] == 2
 
         raw_svg = temp / "raw.svg"
         normalized = temp / "normalized.svg"
@@ -101,7 +119,7 @@ def main() -> int:
             server.shutdown()
             server.server_close()
 
-    print("NATURE_PPT_OK|preflight=true|live_text=true|remote_contract=true|local_profile=pinned")
+    print("NATURE_PPT_OK|preflight=true|budgeted_native=true|compound_paths=true|live_text=true|remote_contract=true|local_profile=pinned")
     return 0
 
 
