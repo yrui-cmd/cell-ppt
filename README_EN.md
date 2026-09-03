@@ -4,15 +4,15 @@ Nature PPT reconstructs PNG, JPEG, WebP, or SVG references as practical PowerPoi
 
 ## Modes
 
-- Native: flat scientific diagrams and limited-color artwork become PowerPoint shapes and live text.
-- Hybrid: photographs, 3D renders, glass, glow, soft shadows, and dense gradients remain a sharp background while text and important scientific elements are rebuilt above it.
+- Native: flat scientific diagrams and limited-color artwork become full-detail PowerPoint shapes and live text.
+- Light native: photographs, 3D renders, glass, glow, soft shadows, and dense gradients are converted with an object-budget search over palette size, region cleanup, and spline simplification. No raster background is embedded.
 - Archive: produces a maximum-fidelity SVG without forcing an impractical object count into PowerPoint.
 
 The default native-object safety limit is 50,000.
 
 ## Vectorization
 
-Local operation needs no API key and uses a pinned, checksum-verified VTracer 1.0.0-alpha.4 binary. An optional HTTPS adapter can call a separately configured vectorization service. The service returns SVG only; normalization, validation, and PowerPoint rendering remain local. Nothing is uploaded unless a remote endpoint is configured and selected.
+Local operation needs no API key and uses a pinned, checksum-verified VTracer 1.0.0-alpha.4 binary plus compound-path packing. An optional HTTPS adapter can call a separately configured SuperSVG, AdaVec, or future vectorization service. The service returns SVG only; safe path packing, normalization, validation, object-budget enforcement, and PowerPoint rendering remain local. Nothing is uploaded unless a remote endpoint is configured and selected.
 
 ## Install
 
@@ -27,7 +27,7 @@ On macOS, run `bash ./setup.sh`. Add `-Force` or `--force` to replace an older N
 ## Use
 
 ```text
-Use $nature-ppt to reconstruct this reference as a practical editable PowerPoint. Preflight native versus hybrid mode and disclose every raster layer.
+Use $nature-ppt to reconstruct this reference as a practical editable PowerPoint. Generate simple artwork directly; use light-native vectorization for complex artwork and report the object count and fidelity tradeoff.
 ```
 
 The command-line entry point is `scripts/run_pipeline.py`. On Windows, `scripts/reconstruct_from_svg.ps1` can append verified SVG geometry to the active PowerPoint slide. Saved-PPTX generation uses the cross-platform OOXML renderer.
@@ -39,4 +39,4 @@ python tests/test_nature_ppt.py
 python tests/test_cross_platform.py
 ```
 
-Hybrid output is editable by layer and annotation, not pixel-by-pixel. Nature PPT always reports that distinction.
+Both PowerPoint modes contain native shapes and live text only. Light-native output also packs same-style non-overlapping regions into bounded compound shapes, trading photographic microtexture and per-island selection for a much smaller, scalable, editable object set.
