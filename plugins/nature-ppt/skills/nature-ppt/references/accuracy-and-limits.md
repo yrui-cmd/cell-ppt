@@ -4,4 +4,4 @@ The pinned local profile uses VTracer 1.0.0-alpha.4 with `photo` segmentation an
 
 High visual similarity and practical editability are different goals. Pixel fitting can preserve a supplied raster closely while producing hundreds of thousands of solid regions. PowerPoint must store and render every region as a separate object, so continuous-tone photography often becomes unusable when expanded natively.
 
-Use native mode for bounded, hard-edged diagrams; hybrid mode for continuous tones; archive mode for maximum-fidelity SVG. Scaling an SVG does not recreate source detail that was absent in the raster.
+Use native mode for bounded, hard-edged diagrams; light-native mode for continuous tones or over-budget traces; archive mode for maximum-fidelity SVG. Light-native output remains fully vector/native, but may reduce palette size, discard tiny regions, simplify curves, or trace a downsampled source. Scaling an SVG does not recreate source detail that was absent in the raster.

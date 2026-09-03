@@ -2,6 +2,8 @@
 
 Nature PPT works locally without credentials. A hosted vectorizer is optional and is useful when a team maintains a better segmentation model or wants to centralize compute.
 
+The service may wrap SuperSVG, AdaVec, or another engine. Nature PPT does not assume that remote shapes are non-overlapping: it applies only adjacent same-style packing unless the adapter has a separate, verified cutout-mosaic contract. If the packed response remains over budget, automatic mode records the remote attempt and falls back to the local budgeted-native engine.
+
 ## Request contract
 
 - Method: `POST`
