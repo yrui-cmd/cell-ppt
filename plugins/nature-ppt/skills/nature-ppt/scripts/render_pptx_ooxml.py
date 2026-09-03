@@ -50,26 +50,35 @@ def alpha_xml(opacity: float) -> str:
     return f'<a:alpha val="{alpha}"/>' if alpha < 100000 else ""
 
 
-def map_point(point, scale, offset_x, offset_y, view_x, view_y):
+def map_point(point, scale, offset_x, offset_y, view_x, view_y, view_width, view_height):
+    source_x = max(view_x, min(view_x + view_width, float(point[0])))
+    source_y = max(view_y, min(view_y + view_height, float(point[1])))
     return (
-        offset_x + (float(point[0]) - view_x) * scale,
-        offset_y + (float(point[1]) - view_y) * scale,
+        offset_x + (source_x - view_x) * scale,
+        offset_y + (source_y - view_y) * scale,
     )
 
 
-def add_freeform(slide, subpath, paint, name, shape_id, transform):
-    scale, offset_x, offset_y, view_x, view_y = transform
-    points = subpath["points"]
-    mapped = []
-    for point in points:
-        mapped.append(
-            {
-                "a": map_point(point["a"], scale, offset_x, offset_y, view_x, view_y),
-                "l": map_point(point["l"], scale, offset_x, offset_y, view_x, view_y),
-                "r": map_point(point["r"], scale, offset_x, offset_y, view_x, view_y),
-            }
-        )
-    all_xy = [coord for point in mapped for key in ("a", "l", "r") for coord in [point[key]]]
+def add_freeform(slide, subpaths, paint, name, shape_id, transform):
+    scale, offset_x, offset_y, view_x, view_y, view_width, view_height = transform
+    mapped_subpaths = []
+    for subpath in subpaths:
+        mapped = []
+        for point in subpath["points"]:
+            mapped.append(
+                {
+                    "a": map_point(point["a"], scale, offset_x, offset_y, view_x, view_y, view_width, view_height),
+                    "l": map_point(point["l"], scale, offset_x, offset_y, view_x, view_y, view_width, view_height),
+                    "r": map_point(point["r"], scale, offset_x, offset_y, view_x, view_y, view_width, view_height),
+                }
+            )
+        mapped_subpaths.append((subpath, mapped))
+    all_xy = [
+        point[key]
+        for _, mapped in mapped_subpaths
+        for point in mapped
+        for key in ("a", "l", "r")
+    ]
     min_x = min(p[0] for p in all_xy)
     min_y = min(p[1] for p in all_xy)
     max_x = max(p[0] for p in all_xy)
@@ -82,35 +91,38 @@ def add_freeform(slide, subpath, paint, name, shape_id, transform):
         y = round((point[1] - min_y) / height * PATH_EXTENT)
         return max(-2147483647, min(2147483647, x)), max(-2147483647, min(2147483647, y))
 
-    first_x, first_y = local(mapped[0]["a"])
-    commands = [f'<a:moveTo><a:pt x="{first_x}" y="{first_y}"/></a:moveTo>']
-    for idx in range(1, len(mapped)):
-        previous = mapped[idx - 1]
-        current = mapped[idx]
-        end_x, end_y = local(current["a"])
-        if same(previous["r"], previous["a"]) and same(current["l"], current["a"]):
-            commands.append(f'<a:lnTo><a:pt x="{end_x}" y="{end_y}"/></a:lnTo>')
-        else:
-            c1x, c1y = local(previous["r"])
-            c2x, c2y = local(current["l"])
-            commands.append(
-                f'<a:cubicBezTo><a:pt x="{c1x}" y="{c1y}"/>'
-                f'<a:pt x="{c2x}" y="{c2y}"/><a:pt x="{end_x}" y="{end_y}"/></a:cubicBezTo>'
-            )
-    if subpath.get("closed"):
-        previous = mapped[-1]
-        current = mapped[0]
-        if not (same(previous["r"], previous["a"]) and same(current["l"], current["a"])):
-            c1x, c1y = local(previous["r"])
-            c2x, c2y = local(current["l"])
-            commands.append(
-                f'<a:cubicBezTo><a:pt x="{c1x}" y="{c1y}"/>'
-                f'<a:pt x="{c2x}" y="{c2y}"/><a:pt x="{first_x}" y="{first_y}"/></a:cubicBezTo>'
-            )
-        commands.append("<a:close/>")
+    path_xml = []
+    for subpath, mapped in mapped_subpaths:
+        first_x, first_y = local(mapped[0]["a"])
+        commands = [f'<a:moveTo><a:pt x="{first_x}" y="{first_y}"/></a:moveTo>']
+        for idx in range(1, len(mapped)):
+            previous = mapped[idx - 1]
+            current = mapped[idx]
+            end_x, end_y = local(current["a"])
+            if same(previous["r"], previous["a"]) and same(current["l"], current["a"]):
+                commands.append(f'<a:lnTo><a:pt x="{end_x}" y="{end_y}"/></a:lnTo>')
+            else:
+                c1x, c1y = local(previous["r"])
+                c2x, c2y = local(current["l"])
+                commands.append(
+                    f'<a:cubicBezTo><a:pt x="{c1x}" y="{c1y}"/>'
+                    f'<a:pt x="{c2x}" y="{c2y}"/><a:pt x="{end_x}" y="{end_y}"/></a:cubicBezTo>'
+                )
+        if subpath.get("closed"):
+            previous = mapped[-1]
+            current = mapped[0]
+            if not (same(previous["r"], previous["a"]) and same(current["l"], current["a"])):
+                c1x, c1y = local(previous["r"])
+                c2x, c2y = local(current["l"])
+                commands.append(
+                    f'<a:cubicBezTo><a:pt x="{c1x}" y="{c1y}"/>'
+                    f'<a:pt x="{c2x}" y="{c2y}"/><a:pt x="{first_x}" y="{first_y}"/></a:cubicBezTo>'
+                )
+            commands.append("<a:close/>")
+        path_xml.append(f'<a:path w="{PATH_EXTENT}" h="{PATH_EXTENT}">{"".join(commands)}</a:path>')
 
     fill = "<a:noFill/>"
-    if paint.get("filled") and subpath.get("closed"):
+    if paint.get("filled") and any(subpath.get("closed") for subpath in subpaths):
         fill = (
             f'<a:solidFill><a:srgbClr val="{rgb_hex(paint.get("fillColor"))}">'
             f'{alpha_xml(paint.get("opacity", 100))}</a:srgbClr></a:solidFill>'
@@ -129,7 +141,7 @@ def add_freeform(slide, subpath, paint, name, shape_id, transform):
       <p:spPr>
         <a:xfrm><a:off x="{off_x}" y="{off_y}"/><a:ext cx="{ext_x}" cy="{ext_y}"/></a:xfrm>
         <a:custGeom><a:avLst/><a:gdLst/><a:ahLst/><a:cxnLst/><a:rect l="l" t="t" r="r" b="b"/>
-          <a:pathLst><a:path w="{PATH_EXTENT}" h="{PATH_EXTENT}">{''.join(commands)}</a:path></a:pathLst>
+          <a:pathLst>{''.join(path_xml)}</a:pathLst>
         </a:custGeom>{fill}{line}
       </p:spPr>
       <p:txBody><a:bodyPr/><a:lstStyle/><a:p/></p:txBody>
@@ -138,9 +150,9 @@ def add_freeform(slide, subpath, paint, name, shape_id, transform):
 
 
 def add_text(slide, atom, transform):
-    scale, offset_x, offset_y, view_x, view_y = transform
+    scale, offset_x, offset_y, view_x, view_y, view_width, view_height = transform
     text = atom["text"]
-    x, y = map_point(text["position"], scale, offset_x, offset_y, view_x, view_y)
+    x, y = map_point(text["position"], scale, offset_x, offset_y, view_x, view_y, view_width, view_height)
     size = max(4.0, float(text["fontSize"]) * scale)
     width = max(size * 2.0, size * len(str(text["contents"])) * 0.7)
     height = size * 1.5
@@ -197,7 +209,7 @@ def main() -> int:
     scale = min((slide_width - 2 * margin) / view_width, (slide_height - 2 * margin) / view_height)
     offset_x = (slide_width - view_width * scale) / 2.0
     offset_y = (slide_height - view_height * scale) / 2.0
-    transform = (scale, offset_x, offset_y, view_x, view_y)
+    transform = (scale, offset_x, offset_y, view_x, view_y, view_width, view_height)
     next_id = max((shape.shape_id for shape in slide.shapes), default=1) + 1
     created = 0
     for batch in cache["batches"]:
@@ -208,16 +220,17 @@ def main() -> int:
                 created += 1
                 next_id += 1
             elif atom["kind"] == "path":
-                for part_index, subpath in enumerate(atom.get("subpaths", [])):
-                    if len(subpath.get("points", [])) < 2:
+                subpaths = [subpath for subpath in atom.get("subpaths", []) if len(subpath.get("points", [])) >= 2]
+                paints = atom.get("paintParts") or [{}]
+                for paint_index, paint in enumerate(paints):
+                    visible_subpaths = subpaths if paint.get("stroked") else [subpath for subpath in subpaths if subpath.get("closed")]
+                    if not visible_subpaths:
                         continue
-                    paints = atom.get("paintParts") or [{}]
-                    paint = paints[min(part_index, len(paints) - 1)]
                     add_freeform(
                         slide,
-                        subpath,
+                        visible_subpaths,
                         paint,
-                        f'{atom["objectName"]}_PART_{part_index:03d}',
+                        f'{atom["objectName"]}_PAINT_{paint_index:02d}',
                         next_id,
                         transform,
                     )

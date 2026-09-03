@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Route one raster reference to a practical editable PowerPoint workflow."""
+"""Route one raster reference to an all-native editable PowerPoint workflow."""
 
 from __future__ import annotations
 
@@ -10,7 +10,9 @@ import subprocess
 import sys
 from pathlib import Path
 
+from optimize_svg_paths import optimize
 from preflight_image import analyze
+from vectorize import validate
 
 
 def execute(command: list[str]) -> dict:
@@ -29,7 +31,14 @@ def next_job(root: Path) -> str:
     return process.stdout.strip().splitlines()[-1]
 
 
-def vectorize(source: Path, output: Path, backend: str, endpoint: str | None, token_file: Path | None) -> dict:
+def vectorize(
+    source: Path,
+    output: Path,
+    backend: str,
+    endpoint: str | None,
+    token_file: Path | None,
+    profile: str = "editable",
+) -> dict:
     scripts = Path(__file__).resolve().parent
     selected = backend
     if selected == "auto":
@@ -40,7 +49,7 @@ def vectorize(source: Path, output: Path, backend: str, endpoint: str | None, to
             str(scripts / "remote_vectorize.py"),
             "--input", str(source),
             "--output", str(output),
-            "--profile", "editable",
+            "--profile", profile,
         ]
         if endpoint:
             command.extend(["--endpoint", endpoint])
@@ -55,6 +64,19 @@ def vectorize(source: Path, output: Path, backend: str, endpoint: str | None, to
     ])
     report["backend"] = "local"
     return report
+
+
+def vectorize_budgeted(source: Path, output: Path, object_limit: int, force: bool = False) -> dict:
+    command = [
+        sys.executable,
+        str(Path(__file__).with_name("vectorize_budgeted.py")),
+        "--input", str(source),
+        "--output", str(output),
+        "--object-limit", str(object_limit),
+    ]
+    if force:
+        command.append("--force")
+    return execute(command)
 
 
 def restore_text(vector_svg: Path, manifest: Path, output: Path) -> dict:
@@ -76,19 +98,19 @@ def render_native(svg: Path, output: Path, cache_root: Path, job_name: str, inpu
         "--svg", str(svg),
         "--strict-ids",
     ])
-    execute([
+    subprocess.run([
         sys.executable,
         str(scripts / "prepare_geometry_cache.py"),
         "--input", str(svg),
         "--output-dir", str(cache_root),
         "--job-id", job_name,
-    ])
-    execute([
+    ], check=True, capture_output=True, text=True)
+    subprocess.run([
         sys.executable,
         str(scripts / "cull_hidden_geometry.py"),
         "--cache", str(cache_root / "geometry-cache.json"),
         "--state", str(cache_root / "drawing-state.json"),
-    ])
+    ], check=True, capture_output=True, text=True)
     command = [
         sys.executable,
         str(scripts / "render_pptx_ooxml.py"),
@@ -105,7 +127,7 @@ def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--input-image", required=True, type=Path)
     parser.add_argument("--output-root", required=True, type=Path)
-    parser.add_argument("--mode", choices=("auto", "native", "hybrid", "archive"), default="auto")
+    parser.add_argument("--mode", choices=("auto", "native", "light-native", "archive"), default="auto")
     parser.add_argument("--vector-backend", choices=("auto", "local", "remote"), default="auto")
     parser.add_argument("--remote-url")
     parser.add_argument("--remote-token-file", type=Path)
@@ -115,7 +137,7 @@ def main() -> int:
     parser.add_argument("--slide-index", type=int, default=0)
     parser.add_argument("--native-object-limit", type=int, default=50_000)
     parser.add_argument("--allow-large-native", action="store_true")
-    parser.add_argument("--also-svg", action="store_true")
+    parser.add_argument("--also-svg", action="store_true", help="Deprecated: every mode now preserves SVG")
     args = parser.parse_args()
 
     source = args.input_image.expanduser().resolve(strict=True)
@@ -136,52 +158,54 @@ def main() -> int:
     vector_report = None
     render_report = None
 
-    if mode == "hybrid":
-        render_report = execute([
-            sys.executable,
-            str(Path(__file__).with_name("build_hybrid_pptx.py")),
-            "--background-image", str(cleaned),
-            "--output-pptx", str(pptx),
-            *(["--text-manifest", str(manifest)] if manifest else []),
-            *(["--input-pptx", str(args.input_pptx.resolve())] if args.input_pptx else []),
-            "--slide-index", str(args.slide_index),
-        ])
-        if args.also_svg:
-            raw_svg = job / f"{job_name}-trace.svg"
-            vector_report = vectorize(cleaned, raw_svg, args.vector_backend, args.remote_url, args.remote_token_file)
-            if manifest:
-                restore_text(raw_svg, manifest, master_svg)
-            else:
-                raw_svg.replace(master_svg)
-    else:
-        raw_svg = job / f"{job_name}-trace.svg"
-        vector_report = vectorize(cleaned, raw_svg, args.vector_backend, args.remote_url, args.remote_token_file)
-        if manifest:
-            restore_text(raw_svg, manifest, master_svg)
+    raw_svg = job / f"{job_name}-trace.svg"
+    if mode == "light-native":
+        remote_selected = args.vector_backend == "remote" or (
+            args.vector_backend == "auto" and (args.remote_url or os.environ.get("NATURE_PPT_VECTOR_URL"))
+        )
+        if remote_selected:
+            vector_report = vectorize(
+                cleaned,
+                raw_svg,
+                args.vector_backend,
+                args.remote_url,
+                args.remote_token_file,
+                profile="editable",
+            )
+            packed_svg = job / f"{job_name}-packed.svg"
+            packing = optimize(raw_svg, packed_svg, cutout_mosaic=False)
+            packed_svg.replace(raw_svg)
+            packed_structure = validate(raw_svg)
+            vector_report.update({"path_packing": packing, **packed_structure})
+            vector_report["vector_element_count"] = packed_structure["paths"]
+            if packed_structure["paths"] > args.native_object_limit:
+                remote_attempt = dict(vector_report)
+                vector_report = vectorize_budgeted(cleaned, raw_svg, args.native_object_limit, force=True)
+                vector_report["remote_attempt"] = remote_attempt
+                mode = "light-native-local-fallback"
         else:
-            raw_svg.replace(master_svg)
+            vector_report = vectorize_budgeted(cleaned, raw_svg, args.native_object_limit)
+    else:
+        vector_report = vectorize(cleaned, raw_svg, args.vector_backend, args.remote_url, args.remote_token_file)
         if mode == "native":
             vector_count = int(vector_report.get("vector_element_count", vector_report.get("paths", 0)))
             if vector_count > args.native_object_limit and not args.allow_large_native:
-                render_report = execute([
-                    sys.executable,
-                    str(Path(__file__).with_name("build_hybrid_pptx.py")),
-                    "--background-image", str(cleaned),
-                    "--output-pptx", str(pptx),
-                    *(["--text-manifest", str(manifest)] if manifest else []),
-                    *(["--input-pptx", str(args.input_pptx.resolve())] if args.input_pptx else []),
-                    "--slide-index", str(args.slide_index),
-                ])
-                mode = "hybrid-after-vector-limit"
-            else:
-                render_report = render_native(
-                    master_svg,
-                    pptx,
-                    job / ".nature-ppt-cache",
-                    job_name,
-                    args.input_pptx.resolve() if args.input_pptx else None,
-                    args.slide_index,
-                )
+                vector_report = vectorize_budgeted(cleaned, raw_svg, args.native_object_limit, force=True)
+                mode = "light-native-after-vector-limit"
+
+    if manifest:
+        restore_text(raw_svg, manifest, master_svg)
+    else:
+        raw_svg.replace(master_svg)
+    if mode != "archive":
+        render_report = render_native(
+            master_svg,
+            pptx,
+            job / ".nature-ppt-cache",
+            job_name,
+            args.input_pptx.resolve() if args.input_pptx else None,
+            args.slide_index,
+        )
 
     report = {
         "schema_version": "1.0",
@@ -191,6 +215,8 @@ def main() -> int:
         "preflight": preflight,
         "vectorization": vector_report,
         "render": render_report,
+        "native_only": True,
+        "raster_layers": False,
         "pptx": str(pptx) if pptx.exists() else None,
         "svg": str(master_svg) if master_svg.exists() else None,
     }

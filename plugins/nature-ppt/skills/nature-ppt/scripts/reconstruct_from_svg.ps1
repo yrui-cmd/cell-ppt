@@ -67,7 +67,7 @@ if ($LASTEXITCODE -ne 0) { throw 'Geometry cache preparation failed.' }
 if ($LASTEXITCODE -ne 0) { throw 'Duplicate-path filtering failed.' }
 $cacheSummary = Get-Content -LiteralPath (Join-Path $cacheRoot 'geometry-cache.json') -Raw -Encoding UTF8 | ConvertFrom-Json
 if (([int]$cacheSummary.total_atoms -gt $MaxNativeObjects) -and -not $AllowLargeNative) {
-    throw "Native object count $($cacheSummary.total_atoms) exceeds the safe limit $MaxNativeObjects. Use hybrid mode, or pass -AllowLargeNative only when slow PowerPoint editing is acceptable."
+    throw "Native object count $($cacheSummary.total_atoms) exceeds the safe limit $MaxNativeObjects. Re-vectorize the source in light-native mode, or pass -AllowLargeNative only when slow PowerPoint editing is acceptable."
 }
 
 $profilePath = Join-Path (Split-Path -Parent $PSScriptRoot) 'runtime-profile.json'

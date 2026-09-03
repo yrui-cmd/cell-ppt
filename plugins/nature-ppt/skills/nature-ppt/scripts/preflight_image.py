@@ -36,7 +36,7 @@ def analyze(path: Path, native_limit: int = 50_000) -> dict:
     complexity = 0.42 * color_ratio + 0.38 * entropy_ratio + 0.20 * edge_ratio
     projected_paths = max(100, round(width * height * (0.006 + 0.48 * complexity)))
     photographic = entropy >= 6.7 or unique >= 20_000 or complexity >= 0.68
-    recommended = "hybrid" if photographic or projected_paths > native_limit else "native"
+    recommended = "light-native" if photographic or projected_paths > native_limit else "native"
     return {
         "schema_version": "1.0",
         "status": "PASS",
@@ -52,8 +52,8 @@ def analyze(path: Path, native_limit: int = 50_000) -> dict:
         "classification": "photographic-or-gradient-heavy" if photographic else "diagram-or-flat-art",
         "recommended_mode": recommended,
         "reason": (
-            "continuous tones and fine detail would create too many PowerPoint objects"
-            if recommended == "hybrid"
+            "use budgeted color reduction, region cleanup, and curve simplification to stay natively editable"
+            if recommended == "light-native"
             else "estimated vector complexity is within the native-editing budget"
         ),
     }

@@ -308,8 +308,6 @@ def recording_to_subpaths(recording: list[tuple[str, tuple]]) -> list[dict]:
         else:
             raise ValueError(f"Unsupported parsed path operation: {operation}")
     flush(False)
-    if not subpaths:
-        raise ValueError("Vector atom produced no drawable subpaths")
     return subpaths
 
 
@@ -449,6 +447,11 @@ def parse_atom(element: ET.Element, transform: Transform, presentation: dict[str
     cubic_pen = Qu2CuPen(transformed_pen, max_err=0.001, all_cubic=True)
     parse_path(element_path_data(element), cubic_pen)
     subpaths = recording_to_subpaths(recording.value)
+    # Quantization and curve simplification can legitimately collapse a tiny
+    # VTracer region to a move-only or one-point path. It has no visible paint
+    # and should not become a PowerPoint object.
+    if not subpaths:
+        return None
     complexity = sum(len(subpath["points"]) for subpath in subpaths)
     source_id = element.get("id") or f"source_atom_{index:06d}"
     return {

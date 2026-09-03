@@ -4,35 +4,12 @@
 from __future__ import annotations
 
 import argparse
-import copy
 import hashlib
 import json
 from datetime import datetime, timezone
 from pathlib import Path
 
 import prepare_geometry_cache as cache_builder
-
-
-def expand_drawing_paths(atoms):
-    """Make the culling unit identical to the native shape shown in PowerPoint."""
-    expanded = []
-    for atom in atoms:
-        subpaths = atom.get("subpaths") or []
-        if atom.get("kind") == "text" or len(subpaths) <= 1:
-            expanded.append(atom)
-            continue
-        paint_parts = atom.get("paintParts") or []
-        for subpath_index, subpath in enumerate(subpaths):
-            unit = copy.deepcopy(atom)
-            unit["subpaths"] = [subpath]
-            unit["sourceSubpathIndex"] = subpath_index
-            unit["objectName"] = f"{atom.get('objectName', 'PATH')}_SUB_{subpath_index:03d}"
-            unit["complexity"] = len(subpath.get("points") or [])
-            if paint_parts:
-                selected = paint_parts[subpath_index] if len(paint_parts) == len(subpaths) else paint_parts[0]
-                unit["paintParts"] = [copy.deepcopy(selected)]
-            expanded.append(unit)
-    return expanded
 
 
 def signature(atom):
@@ -70,7 +47,11 @@ def main():
     cache = json.loads(cache_path.read_text(encoding="utf-8-sig"))
     state = json.loads(state_path.read_text(encoding="utf-8-sig"))
     source_atoms = cache.get("atoms", [])
-    atoms = expand_drawing_paths(source_atoms)
+    # Keep compound paths intact. The OOXML renderer can place many disjoint
+    # subpaths inside one editable custom-geometry shape, which is the main
+    # object-count reduction used by light-native mode.
+    atoms = source_atoms
+    source_drawing_paths = sum(max(1, len(atom.get("subpaths") or [])) for atom in source_atoms)
     keep = [True] * len(atoms)
     seen = set()
     culled = []
@@ -105,7 +86,7 @@ def main():
         int(cache["complex_point_threshold"]),
     )
     cache["source_total_atoms"] = len(source_atoms)
-    cache["source_total_drawing_paths"] = len(atoms)
+    cache["source_total_drawing_paths"] = source_drawing_paths
     cache["culled_atom_count"] = len(atoms) - len(kept_atoms)
     cache["culled_atoms"] = sorted(culled, key=lambda item: item["position"])
     cache["atoms"] = kept_atoms
@@ -134,7 +115,7 @@ def main():
     print(json.dumps({
         "ok": True,
         "source_atoms": len(source_atoms),
-        "source_drawing_paths": len(atoms),
+        "source_drawing_paths": source_drawing_paths,
         "kept_atoms": len(kept_atoms),
         "culled_atoms": len(atoms) - len(kept_atoms),
     }, ensure_ascii=False))
