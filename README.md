@@ -1,119 +1,84 @@
-# Cell_ppt
+# Nature PPT
 
-Cell_ppt 支持 Windows 与 macOS，并保持同一套核心流程：
+Nature PPT 将 PNG、JPEG、WebP 或 SVG 参考图重建为实际可用的 PowerPoint 内容。它不会把“产生了很多路径”误称为“很好编辑”，而是先判断复杂度，再选择合适的输出方式。
 
-`文字清单 → Image 2 仅清文字 → 小描路径返回 SVG → 合并可编辑文字 → 单次解析 → 清除重复路径 → 按源顺序从底层到顶层绘制 → 原生可编辑 PPTX`
-
-平台只在最后一步不同：
-
-- Windows 10/11：支持 PowerPoint 2016、2019、2021、LTSC 2021、LTSC 2024 和 Microsoft 365 桌面版，使用 COM 在当前幻灯片中按路径顺序实时绘制。
-- macOS 13+：支持可打开标准 `.pptx` 的 PowerPoint 2019、2021、2024 和 Microsoft 365 桌面版；使用原生 OOXML 写入同一几何缓存，路径和文字可编辑，但不伪装成实时逐路径动画。
-- WPS Presentation：实验性兼容。
-
-## 已固定的规则
-
-- Python 3.11–3.14。
-- 不限定 PowerPoint 2026；Windows 使用通用 `PowerPoint.Application` 接口，macOS 使用标准 `.pptx` OOXML。
-- `python-pptx==1.0.2`、`fonttools==4.61.1`、`shapely==2.1.2`。
-- 几何缓存 schema 3，文字清单 schema 1.0。
-- 普通批次 20–50 条路径，画布安全边距 18 pt。
-- 文件名统一为 `shibielujingN`。
-- 源 SVG 只解析一次；保留路径严格按源绘制顺序写入。
-- 只清除完全重复的路径；不可见、被覆盖和部分可见的非重复路径均保留。
-- Windows 逐对象间隔固定为 8 ms，比原来的 80 ms 快 10 倍。
-- 不删除、隐藏、移动或替换目标幻灯片已有对象。
-- API Key 不进入命令参数、环境变量、仓库、日志、缓存或交付文件。
-- Windows 密钥位置固定为当前账户 DPAPI；macOS 固定为系统 Keychain 服务 `cell-ppt-xiaomiao`。
-
-这些值写在依赖锁、脚本和 `platform-contract.json` 中，不需要用户自行配置。
-
-## 交给 Codex 自动安装
-
-直接把下面一句和 API Key 一起发给目标电脑的 Codex：
+## 0.6.0 的工作方式
 
 ```text
-请安装 https://github.com/yrui-cmd/cell-ppt，并根据当前电脑自动匹配操作系统、Python、PowerPoint/WPS 与绘图后端；使用我在本条消息中提供的 API Key 完成安全配置，不要复述或显示密钥。安装、依赖、DPAPI/Keychain、认证验证和诊断全部由你完成，验证通过后使用 $cell-ppt 开始作图。
+参考图 → 复杂度预检 → 简单图直接高保真矢量化 → SVG 校验 → PowerPoint 原生对象
+                     └→ 复杂图按对象预算逐档减色、去噪、简化
 ```
 
-允许在聊天中提供 API Key。Codex 必须只通过标准输入传给安装程序，不得复述，也不得写入命令行参数、环境变量、项目、日志或交付文件。安装程序会自动安装固定依赖、复制 Skill、生成 `runtime-profile.json`、选择可用后端、保存加密凭据并执行零额度认证验证。
+- 原生模式：适合扁平科研图、流程图、机制图和有限色彩图，按最高保真配置直接生成 PowerPoint 原生对象。
+- 轻量原生模式：适合照片、3D 渲染、辉光、软阴影和密集渐变。算法在多个颜色、去噪和曲线简化档位中，选择不超过对象预算且细节最多的版本；PPT 中不嵌入背景位图。
+- 存档模式：生成最高保真 SVG，但不会强行把超预算路径塞进 PowerPoint。
 
-## Windows 安装
+默认原生对象安全上限为 50,000。超过上限时自动转为轻量原生矢量化，不再生成“高清位图背景 + 上层编辑对象”的分层结果。
 
-```powershell
-git clone https://github.com/yrui-cmd/cell-ppt.git
-Set-Location .\cell-ppt
-powershell -ExecutionPolicy Bypass -File .\setup.ps1
-```
+## 矢量化后端
 
-覆盖已有 Skill：
+本地模式无需 API Key，使用固定并校验哈希的 VTracer 1.0.0-alpha.4。
 
-```powershell
-powershell -ExecutionPolicy Bypass -File .\setup.ps1 -Force
-```
+项目同时提供可选 HTTPS 矢量服务适配器，可接 SuperSVG、AdaVec 或后续更强的引擎。线上服务并非必需，也不会在未配置时自动上传图片。服务只负责返回 SVG，SVG 会在本地完成路径打包、规范化、结构校验和 PowerPoint 绘制；超预算时回退到本地轻量原生算法。接口契约见 Skill 的 `references/remote-backend.md`。
 
-## macOS 安装
-
-```bash
-git clone https://github.com/yrui-cmd/cell-ppt.git
-cd cell-ppt
-bash ./setup.sh
-```
-
-覆盖已有 Skill：
-
-```bash
-bash ./setup.sh --force
-```
-
-安装后重启 Codex 并新建任务。API Key 由 Codex 通过标准输入配置；Windows 保存为 DPAPI 密文，macOS 保存到 Keychain。
-
-用户无需判断 PowerPoint 版本或后端：Windows 自动选择 PowerPoint COM，其次尝试 WPS，均不可用时仍可生成原生可编辑 PPTX；macOS 自动使用原生 OOXML。
-
-## 使用
-
-Windows：先打开 PowerPoint 和目标文稿。
-
-```text
-使用 $cell-ppt，根据我上传的内容或图片在当前 PowerPoint 幻灯片中作图，保留已有内容。
-```
-
-macOS：先保存目标 PPTX，并把文件路径交给 Codex。
-
-```text
-使用 $cell-ppt，把上传内容重建为可编辑路径并追加到 /Users/me/project/deck.pptx。
-```
-
-## 诊断
+## 安装
 
 Windows：
 
 ```powershell
-.\doctor.ps1
-.\doctor.ps1 -VerifyApi -RequirePowerPointOpen
+git clone https://github.com/Gerry2024-hub/nature-ppt.git
+Set-Location .\nature-ppt
+powershell -ExecutionPolicy Bypass -File .\setup.ps1
 ```
 
 macOS：
 
 ```bash
-python3 ./doctor.py
-python3 ./doctor.py --verify-api --json
+git clone https://github.com/Gerry2024-hub/nature-ppt.git
+cd nature-ppt
+bash ./setup.sh
+```
+
+覆盖旧版时增加 `-Force` 或 `--force`。安装器只更新 `nature-ppt`，不会删除或修改其他 Skill，并保留已有运行配置。
+
+## 使用
+
+在 豆包、VScode、deepseek、Claudecode、Codex等中发送：
+
+```text
+使用 $nature-ppt，把这张参考图重建为实际可编辑的 PowerPoint；简单图直接原生生成，复杂图使用轻量原生模式，并报告对象数与细节损失。
+```
+
+命令行完整流程：
+
+```powershell
+python .\plugins\nature-ppt\skills\nature-ppt\scripts\run_pipeline.py `
+  --input-image .\reference.png `
+  --output-root .\outputs
+```
+
+将已经验证的 SVG 绘制到 Windows 当前 PowerPoint：
+
+```powershell
+powershell -ExecutionPolicy Bypass -File `
+  .\plugins\nature-ppt\skills\nature-ppt\scripts\reconstruct_from_svg.ps1 `
+  -InputSvg .\figure.svg -OutputRoot .\outputs -UseActivePresentation
 ```
 
 ## 测试
 
 ```powershell
+python .\tests\test_nature_ppt.py
+python .\tests\test_cross_platform.py
 .\tests\test-package.ps1
-.\tests\test-windows-e2e.ps1
 ```
 
-```bash
-python3 ./tests/test_cross_platform.py
-```
-
-Windows PowerPoint 真机测试必须使用一次性测试文稿：
+PowerPoint 真机测试只允许在一次性测试文稿中显式运行：
 
 ```powershell
 .\tests\test-powerpoint-e2e.ps1 -ConfirmDisposablePresentation
 ```
 
-完整插件源码位于 `plugins/cell-ppt`。感谢小红书：木纹小路。
+## 可编辑性说明
+
+两种 PowerPoint 输出都只包含原生路径和文字，不使用栅格背景。复杂图片会通过减少相近颜色、合并细小区域、简化曲线、把同色非重叠区域打包成复合路径，必要时降低追踪分辨率来控制对象数；因此高清缩放边缘与可编辑性可以兼顾，但照片级微纹理和连续渐变会被适度压缩。

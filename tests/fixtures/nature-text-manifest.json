@@ -1,0 +1,24 @@
+{
+  "schema_version": "1.0",
+  "text_elements": [
+    {
+      "id": "nature-label",
+      "content": "Eₐ",
+      "x": 0.55,
+      "y": 0.5,
+      "coordinate_space": "normalized",
+      "font_size": 0.08,
+      "font_size_space": "normalized",
+      "font_family": "Arial",
+      "font_weight": "bold",
+      "font_style": "italic",
+      "fill": "#111111",
+      "opacity": 1,
+      "rotation": 0,
+      "text_anchor": "start",
+      "dominant_baseline": "alphabetic",
+      "bbox_normalized": {"x": 0.55, "y": 0.42, "width": 0.12, "height": 0.1},
+      "paint_order": 999
+    }
+  ]
+}

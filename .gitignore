@@ -6,7 +6,8 @@
 .dry-run-out/
 .release-tmp/
 dist/
-Cell_ppt-output/
+work/
+Nature-PPT-output/
 *.pptx
 *.ppt
 *.ai

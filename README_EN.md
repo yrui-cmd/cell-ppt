@@ -1,47 +1,42 @@
-# Cell_ppt
+# Nature PPT
 
-Cell_ppt supports Windows and macOS with one shared core pipeline:
+Nature PPT reconstructs PNG, JPEG, WebP, or SVG references as practical PowerPoint content. It preflights complexity before choosing a representation, because a deck containing a million technically editable paths is not a usable editable deck.
 
-`text manifest → Image 2 text-only cleanup → Xiaomiao path-return SVG → editable text merge → one parse → duplicate-path removal → literal source order from back to front → native editable PPTX`
+## Modes
 
-- Windows supports PowerPoint 2016, 2019, 2021, LTSC 2021, LTSC 2024, and Microsoft 365 desktop through the common `PowerPoint.Application` COM interface.
-- macOS supports desktop PowerPoint 2019, 2021, 2024, and Microsoft 365 versions that open standard `.pptx` files. It writes the same geometry cache as native editable DrawingML custom geometry into a saved PPTX; file-backed output is not presented as fake live animation.
-- WPS Presentation remains experimental.
+- Native: flat scientific diagrams and limited-color artwork become full-detail PowerPoint shapes and live text.
+- Light native: photographs, 3D renders, glass, glow, soft shadows, and dense gradients are converted with an object-budget search over palette size, region cleanup, and spline simplification. No raster background is embedded.
+- Archive: produces a maximum-fidelity SVG without forcing an impractical object count into PowerPoint.
 
-## Fixed defaults
+The default native-object safety limit is 50,000.
 
-- Python 3.11–3.14.
-- `python-pptx==1.0.2`, `fonttools==4.61.1`, `shapely==2.1.2`.
-- Geometry cache schema 3; text manifest schema 1.0.
-- Ordinary batches contain 20–50 paths; slide margin is 18 pt.
-- Output names use `shibielujingN`.
-- Windows credentials use DPAPI; macOS credentials use Keychain service `cell-ppt-xiaomiao`.
+## Vectorization
 
-## Codex-managed installation
+Local operation needs no API key and uses a pinned, checksum-verified VTracer 1.0.0-alpha.4 binary plus compound-path packing. An optional HTTPS adapter can call a separately configured SuperSVG, AdaVec, or future vectorization service. The service returns SVG only; safe path packing, normalization, validation, object-budget enforcement, and PowerPoint rendering remain local. Nothing is uploaded unless a remote endpoint is configured and selected.
 
-The user may provide the API key directly in chat. Codex must never repeat or display it. Codex passes it to setup through standard input; setup installs dependencies, copies the Skill, detects the operating system and available presentation host, writes `runtime-profile.json`, stores the credential with DPAPI or Keychain, runs a zero-credit authentication check, and selects the backend automatically. The user is not asked to choose Python, a PowerPoint version, a ProgID, or a backend.
-- Existing slide objects are preserved.
-
-## Windows install
+## Install
 
 ```powershell
-git clone https://github.com/yrui-cmd/cell-ppt.git
-Set-Location .\cell-ppt
+git clone https://github.com/Gerry2024-hub/nature-ppt.git
+Set-Location .\nature-ppt
 powershell -ExecutionPolicy Bypass -File .\setup.ps1
 ```
 
-## macOS install
+On macOS, run `bash ./setup.sh`. Add `-Force` or `--force` to replace an older Nature PPT installation. The installer updates only `nature-ppt` and preserves its runtime configuration.
 
-```bash
-git clone https://github.com/yrui-cmd/cell-ppt.git
-cd cell-ppt
-bash ./setup.sh
+## Use
+
+```text
+Use $nature-ppt to reconstruct this reference as a practical editable PowerPoint. Generate simple artwork directly; use light-native vectorization for complex artwork and report the object count and fidelity tradeoff.
 ```
 
-Restart Codex after installation. For an existing macOS deck, save it first and provide its PPTX path.
+The command-line entry point is `scripts/run_pipeline.py`. On Windows, `scripts/reconstruct_from_svg.ps1` can append verified SVG geometry to the active PowerPoint slide. Saved-PPTX generation uses the cross-platform OOXML renderer.
 
-## Cross-platform test
+## Tests
 
-```bash
-python3 ./tests/test_cross_platform.py
+```text
+python tests/test_nature_ppt.py
+python tests/test_cross_platform.py
 ```
+
+Both PowerPoint modes contain native shapes and live text only. Light-native output also packs same-style non-overlapping regions into bounded compound shapes, trading photographic microtexture and per-island selection for a much smaller, scalable, editable object set.

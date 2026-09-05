@@ -1,23 +1,21 @@
 # Changelog
 
-## 0.2.0 - Unreleased
+## 0.6.0
 
-- Use one reconstruction, text, SVG parsing, culling, cache, batching, and native-object contract on Windows and macOS.
-- Keep live PowerPoint COM drawing on Windows and add native editable OOXML output for saved PPTX files on macOS.
-- Add macOS Keychain credential storage, cross-platform installation, and diagnostics.
-- Move stable runtime values into `platform-contract.json`; remove frozen manifests and fixed-tag installation requirements.
-- Allow a user-supplied chat API key to be configured automatically through stdin without echoing it.
-- Add install-time OS, Python, PowerPoint/WPS, credential, and backend matching with a non-secret runtime profile.
-- Add automatic dependency installation and native editable OOXML fallback when live presentation automation is unavailable.
+- Replace automatic hybrid output with an all-native two-route policy: direct native for simple art and light-native for complex art.
+- Add an object-budget search using palette quantization, cutout regions, speckle cleanup, spline simplification, and late-stage source downsampling.
+- Add bounded compound-path packing and compound OOXML rendering so many same-style islands become one editable PowerPoint object.
+- Allow configured remote SuperSVG/AdaVec-style services to feed the same local packing, validation, and budget pipeline with deterministic local fallback.
+- Preserve the highest-detail candidate that fits the native-object limit and report the selected profile and source scale.
+- Fail clearly instead of generating a raster background when no candidate fits a user-specified budget.
 
-## 0.1.1 - 2026-08-27
+## 0.5.0
 
-- Describe the product consistently as live PowerPoint drawing rather than path presentation.
-- Rename drawing-cache state and runtime contract fields while preserving bottom-to-top editable drawing behavior.
-- Align the GitHub homepage with the established stable-plugin documentation structure.
-
-## 0.1.0 - 2026-08-27
-
-- Freeze the tested Cell_ppt PowerPoint drawing workflow.
-- Add live editable text, native freeform paths, single-cache drawing, hidden-path culling, and existing-slide protection.
-- Add locked dependencies, DPAPI credential storage, package tests, PowerPoint end-to-end tests, release ZIP, and SHA256 verification.
+- Make `nature-ppt` the only installed Skill and plugin identity.
+- Add image-complexity preflight with a 50,000-object native safety budget.
+- Add explicit native, hybrid, and maximum-fidelity archive modes.
+- Add an optional generic HTTPS raster-to-SVG adapter; local VTracer remains the no-key default.
+- Add local PowerPoint COM drawing and cross-platform editable OOXML rendering under Nature PPT names.
+- Add a hybrid PPTX builder with high-resolution background placement and live editable text.
+- Preserve existing Skill configuration during forced reinstall and leave every other Skill untouched.
+- Remove promotional messages, provider-specific credential flows, and inherited output naming.

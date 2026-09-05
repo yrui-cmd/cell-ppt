@@ -1,0 +1,4 @@
+interface:
+  display_name: "Nature PPT"
+  short_description: "Reference images to practical editable PowerPoint"
+  default_prompt: "Use $nature-ppt to reconstruct my reference as an all-native editable PowerPoint. Generate simple artwork directly; for complex artwork choose the highest-detail light-native trace within the object budget and report any fidelity compromise."
