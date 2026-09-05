@@ -1,5 +1,5 @@
 {
-  "skillId": "cell_gd",
+  "skillId": "cell-ppt",
   "outputBasenamePattern": "shibielujingN",
   "apiBaseUrl": "https://xiaomiao-ai.com",
   "geometryCacheSchema": 3,
