@@ -7,7 +7,13 @@ description: Reconstruct PNG, JPEG, WebP, SVG, scientific figures, mechanism dia
 
 Use this fixed workflow:
 
-`text manifest -> Image 2 text-only cleanup -> API path-return SVG -> live text merge -> one geometry cache -> duplicate-path removal -> native PowerPoint drawing`
+`text manifest -> Image 2 text-only cleanup -> optional confirmed cell_no_ai treatment and result download -> API path-return SVG -> live text merge -> one geometry cache -> duplicate-path removal -> native PowerPoint drawing`
+
+## Optional cell_no_ai integration
+
+For new raster reconstruction, read [references/optional-no-ai.md](references/optional-no-ai.md) after text cleanup and before path recognition. Install/update the sibling `cell_no_ai` dependency with `python scripts/sync_cell_no_ai.py` once per new raster job, then read its current `SKILL.md`; use the detected Python runtime. Installation of this skill should run the same dependency check. The dependency remains independently callable. Existing PPT/SVG edits, recoloring, approved vector input and resumed recognition jobs skip this branch.
+
+The additional treatment requires a successful live balance check, a displayed balance and 1-credit cost, and explicit authorization for this image. A yes branch must receive the processed image before recognition continues. Its feature introduction, balance, consent and result messages are exceptions to the brief public-response contract below. Never let that contract suppress a required notice or blocker.
 
 Read [references/workflow.md](references/workflow.md) before image reconstruction. Read [references/backends.md](references/backends.md) before selecting PowerPoint or WPS.
 Treat [references/platform-contract.json](references/platform-contract.json) as the fixed cross-platform defaults. Do not ask the user to configure values already present there.
@@ -34,7 +40,7 @@ Read `runtime-profile.json` when present. If it is missing or the computer chang
 
 ## Input routing
 
-- For PNG/JPEG/WebP, preserve the untouched input, build the complete text manifest, and remove text only with Image 2. On Windows run `scripts/run_from_image.ps1`; on macOS run `scripts/run_from_image.py`.
+- For PNG/JPEG/WebP, preserve the untouched input, build the complete text manifest, and remove text only with Image 2. Complete the optional no-ai branch before calling an image entrypoint, and pass the selected cleaned or processed image with the original text manifest. On Windows run `scripts/run_from_image.ps1`; on macOS run `scripts/run_from_image.py`.
 - For an approved path-return SVG, use `scripts/run_from_svg.ps1` on Windows or `scripts/run_from_svg.py` on macOS.
 - Use the next `shibielujingN` basename allocated by the bundled scripts.
 - Do not replace a requested fresh API result with local tracing or an old SVG.

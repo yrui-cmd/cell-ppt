@@ -15,7 +15,9 @@ The user may provide the key directly in chat. Accept it, do not repeat it, and 
 
 ## Master SVG
 
-Send the complete text-cleaned reference through the bundled path-return API adapter. Reject incomplete SVG, raster wrappers, gradients, masks, unsupported linked resources, and clipping structures that cannot be represented faithfully. Merge the recorded text back as real SVG `<text>` elements before geometry caching.
+Before recognition, complete [optional-no-ai.md](optional-no-ai.md). If selected, successfully query/display the live balance, obtain the image-specific extra-credit authorization, and receive the processed image before proceeding. These notices are exceptions to terse response rules; recognition consent does not authorize the extra treatment.
+
+Send the selected complete text-cleaned or returned no-ai image through the bundled path-return API adapter. Reject incomplete SVG, raster wrappers, gradients, masks, unsupported linked resources, and clipping structures that cannot be represented faithfully. Merge the recorded text back as real SVG `<text>` elements before geometry caching.
 
 ## PowerPoint drawing
 

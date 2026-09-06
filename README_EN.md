@@ -1,8 +1,14 @@
 # Cell_ppt
 
+## New: optional AI hidden-watermark treatment in the drawing workflow
+
+The independently open-source [cell_no_ai](https://github.com/yrui-cmd/cell_no_ai) is now integrated. After text cleanup, choose optional AI hidden-watermark treatment; the workflow downloads the processed image before vectorization, then restores editable text and creates native editable PowerPoint artwork. Declining the treatment continues the original drawing workflow.
+
+Installation also installs or updates `cell_no_ai`, and new image-reconstruction jobs check its latest version automatically. Treatment is provided through a third-party API; effectiveness depends on the service output and verification results.
+
 Cell_ppt supports Windows and macOS with one shared core pipeline:
 
-`text manifest → Image 2 text-only cleanup → Xiaomiao path-return SVG → editable text merge → one parse → duplicate-path removal → literal source order from back to front → native editable PPTX`
+`text manifest → Image 2 text-only cleanup → optional hidden-watermark treatment and image download → Xiaomiao path-return SVG → editable text merge → one parse → duplicate-path removal → literal source order from back to front → native editable PPTX`
 
 - Windows supports PowerPoint 2016, 2019, 2021, LTSC 2021, LTSC 2024, and Microsoft 365 desktop through the common `PowerPoint.Application` COM interface.
 - macOS supports desktop PowerPoint 2019, 2021, 2024, and Microsoft 365 versions that open standard `.pptx` files. It writes the same geometry cache as native editable DrawingML custom geometry into a saved PPTX; file-backed output is not presented as fake live animation.

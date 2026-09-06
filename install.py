@@ -36,6 +36,11 @@ def main() -> int:
         ignore=shutil.ignore_patterns("__pycache__", "*.pyc", "*.pyo"),
     )
     subprocess.run(
+        [sys.executable, str(target / "scripts" / "sync_cell_no_ai.py"),
+         "--destination", str(target_root / "cell_no_ai")],
+        check=True,
+    )
+    subprocess.run(
         [sys.executable, str(target / "scripts" / "configure_runtime.py"), "--output", str(target / "runtime-profile.json")],
         check=True,
     )
