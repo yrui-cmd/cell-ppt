@@ -1,10 +1,20 @@
 # Cell_ppt
 
-## New: optional AI hidden-watermark treatment in the drawing workflow
+Rebuild a scientific image as native editable PowerPoint paths and text while preserving everything already on the target slide.
 
-The independently open-source [cell_no_ai](https://github.com/yrui-cmd/cell_no_ai) is now integrated. After text cleanup, choose optional AI hidden-watermark treatment; the workflow downloads the processed image before vectorization, then restores editable text and creates native editable PowerPoint artwork. Declining the treatment continues the original drawing workflow.
+`Cell_ppt` records the original labels and positions, removes only the text from a working copy, recognizes the remaining graphic paths, restores live text, and writes objects in the source layer order. It removes only exact duplicate paths, preserving occlusion, transparency, and compound holes.
 
-Installation also installs or updates `cell_no_ai`, and new image-reconstruction jobs check its latest version automatically. Treatment is provided through a third-party API; effectiveness depends on the service output and verification results.
+## What you get
+
+- individually selectable PowerPoint paths;
+- editable labels with recorded source positions;
+- source aspect ratio and paint order preserved;
+- live Windows drawing or a native editable PPTX on macOS;
+- an optional hidden-watermark treatment step.
+
+## Optional hidden-watermark treatment
+
+Setup also installs or updates the independently open-source [cell_no_ai](https://github.com/yrui-cmd/cell_no_ai). After text cleanup, the user may choose to download its processed result before path recognition. Declining uses the verified cleaned image directly. This step is provided by a third-party service, so effectiveness depends on the returned file and subsequent verification.
 
 Cell_ppt supports Windows and macOS with one shared core pipeline:
 
